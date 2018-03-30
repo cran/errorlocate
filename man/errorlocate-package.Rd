@@ -42,4 +42,20 @@ T. De Waal (2003) Processing of Erroneous and Unsafe Data. PhD thesis, Universit
  lp_solve version 5.5.2.0. R package version 5.5.2.0-5.
  http://CRAN.R-project.org/package=lpSolveAPI
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/data-cleaning/errorlocate}
+  \item Report bugs at \url{https://github.com/data-cleaning/errorlocate/issues}
+}
 
+}
+\author{
+\strong{Maintainer}: Edwin de Jonge \email{edwindjonge@gmail.com}
+
+Authors:
+\itemize{
+  \item Mark van der Loo \email{mark.vanderloo@gmail.com}
+}
+
+}

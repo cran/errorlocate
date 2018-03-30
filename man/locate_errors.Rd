@@ -3,8 +3,8 @@
 \docType{methods}
 \name{locate_errors}
 \alias{locate_errors}
-\alias{locate_errors,data.frame,ErrorLocalizer-method}
 \alias{locate_errors,data.frame,validator-method}
+\alias{locate_errors,data.frame,ErrorLocalizer-method}
 \title{Locate errors in data}
 \usage{
 locate_errors(data, x, ...)
@@ -40,7 +40,7 @@ use method \code{\link{replace_errors}}.
 rules <- validator( profit + cost == turnover
               , cost - 0.6*turnover >= 0
               , cost>= 0
-              , profit >= 0
+              , turnover >= 0
 )
 data <- data.frame(profit=755, cost=125, turnover=200)
 le <- locate_errors(data, rules)
@@ -69,4 +69,3 @@ v <- validator( married \%in\% c(TRUE, FALSE), if (married==TRUE) age >= 17 )
 data <- data.frame( married = TRUE, age = 16)
 locate_errors(data, v, weight=c(married=1, age=2))
 }
-

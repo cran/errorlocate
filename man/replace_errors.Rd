@@ -3,9 +3,9 @@
 \docType{methods}
 \name{replace_errors}
 \alias{replace_errors}
+\alias{replace_errors,data.frame,validator-method}
 \alias{replace_errors,data.frame,ErrorLocalizer-method}
 \alias{replace_errors,data.frame,errorlocation-method}
-\alias{replace_errors,data.frame,validator-method}
 \title{Replace erroneous fields with NA or a suggested value}
 \usage{
 replace_errors(data, x, ref = NULL, ..., value = c("NA", "suggestion"))
@@ -50,7 +50,7 @@ library(magrittr)
 rules <- validator( profit + cost == turnover
               , cost - 0.6*turnover >= 0
               , cost>= 0
-              , profit >= 0
+              , turnover >= 0
 )
 data <- data.frame(profit=755, cost=125, turnover=200)
 
@@ -71,4 +71,3 @@ data \%>\%
 \seealso{
 \code{\link{errorlocation-class}}
 }
-

@@ -43,7 +43,7 @@ create_errorlocation <- setRefClass('errorlocation',
     }
   ),
   methods=list(
-    initialize = function(values=matrix(), status=list(), weight= rep(1, length(values)), suggestion=list()){
+    initialize = function(values=matrix(), status=list(), weight= rep(1, NROW(values)), suggestion=list()){
       ._call <<- sys.call(-5)
       ._values <<- values
       ._status <<- status
@@ -67,9 +67,10 @@ setMethod("values", "errorlocation", function(x, na_as_error = FALSE, ...){
   values
 })
 
+#' @method as.data.frame errorlocation
 #' @export
-as.data.frame.errorlocation <- function(x, ...){
-  as.data.frame(x$._values)
+as.data.frame.errorlocation <- function(x, row.names = NULL, optional = FALSE, ...){
+  as.data.frame(x$._values, row.names = rownames, optional = optional, ...)
 }
 
 summary.errorlocation <- function(object, ...){
