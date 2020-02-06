@@ -81,11 +81,12 @@ as_dnf <- function(expr, ...){
     op_and <- op_to_s(cond)
 
     while(op_and %in% c("&", "&&")){
-      clauses[[length(clauses) + 1]] <- invert_or_negate(left(cond))
-      cond <- consume(right(cond))
+      clauses[[length(clauses) + 1]] <- invert_or_negate(consume(right(cond)))
+      cond <- consume(left(cond))
       op_and <- op_to_s(cond)
     }
     clauses[[length(clauses) + 1]] <- invert_or_negate(cond)
+    clauses <- rev(clauses)
   }
 
   # build consequent clauses
@@ -93,7 +94,7 @@ as_dnf <- function(expr, ...){
     cons <- consume(cons)
     op_or <- op_to_s(cons)
     while(op_or %in% c("|", "||")){
-      clauses[[length(clauses) + 1]] <- left(cons)
+      clauses[[length(clauses) + 1]] <- consume(left(cons))
       cons <- consume(right(cons))
       op_or <- op_to_s(cons)
     }
@@ -158,8 +159,14 @@ as.expression.dnf <- function(x, as_if = FALSE, ...){
   parse(text=as.character(x, as_if = as_if, ...))
 }
 
+#' @export
+`[.dnf` <- function(x, ...){
+  xs <- unclass(x)[...]
+  class(xs) <- class(x)
+  xs
+}
+
 dnf_to_mip_rule <- function(d, name = "", ...){
-  #browser()
   islin <- sapply(d, is_lin_)
   d_l <- d[islin]
   if (any(islin)){
@@ -209,7 +216,7 @@ dnf_to_mip_rule <- function(d, name = "", ...){
 # translates the validator rules into mip rules
 to_miprules <- function(x, ...){
   check_validator(x, check_infeasible = FALSE)
-  can_translate <- is_linear(x) | is_categorical(x) | is_conditional(x)
+  can_translate <- is_linear(x) | is_categorical(x) | is_conditional(x) | is_local_variable(x)
   if (!all(can_translate)){
     warning("Ignoring rules: ", paste(names(x)[!can_translate], collapse = ", "))
   }

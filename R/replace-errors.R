@@ -28,7 +28,7 @@ setGeneric("replace_errors", function( data
 setMethod('replace_errors', c("data.frame", "validator")
          , function(data, x, ref=NULL, ..., value = c("NA", "suggestion")){
   fh <- fh_localizer(x)
-  replace_errors(data, fh, ref, ...)
+  replace_errors(data, fh, ref, ..., value = value)
 })
 
 #' @export
@@ -39,7 +39,7 @@ setMethod('replace_errors', c("data.frame", "ErrorLocalizer")
                    , ...
                    , value = c("NA", "suggestion")){
   el <- locate_errors(data, x, ref, ...)
-  replace_errors(data, el, ref, ...)
+  replace_errors(data, el, ref, ..., value = value)
 })
 
 #' @export

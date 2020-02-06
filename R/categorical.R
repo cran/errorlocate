@@ -13,12 +13,14 @@ is_cat_ <- function(expr, or=TRUE, ...){
   }
 
   op = op_to_s(expr)
+
   l <- left(expr)
   r <- right(expr)
 
   switch (op,
     "%in%" = TRUE,  # allow all literals (should check for character and logical)
     "%vin%" = TRUE, # Added to comply with validate >= 0.2.2
+    "var_group" = TRUE, # added for var_group expansion
     "("    = is_cat_(l, or),
     "!"    = is_cat_(l, !or),
     "=="   = is.character(r) || is.logical(r),
@@ -86,11 +88,17 @@ cat_var_name <- function(x, infix=INFIX_CAT_NAME){
 #'
 #' Check if rules are categorical
 #' @export
-#' @param x validator object
+#' @param x validator or expression object
 #' @param ... not used
 #' @return logical indicating which rules are purely categorical/logical
 #' @example examples/categorical.R
 is_categorical <- function(x, ...){
+
+  if (is.expression(x)){
+    return(sapply(x, is_cat_))
+  }
+
+  stopifnot(inherits(x, "validator"))
   sapply(x$rules, function(rule){
     is_cat_(rule@expr)
   })
@@ -143,11 +151,11 @@ cat_mip_rule_ <- function(e, name, ...){
 
   if ( length(rule_l) == 1){
     if (length(a) > 1 || op(e) == "=="){  # this is a strict(er) version and allows for some optimization
-      mip_rule(a, "==", b, name, type=sapply(a, function(x) 'binary'))
+      mip_rule(a, op = "==", b = b, rule = name, type=sapply(a, function(x) 'binary'))
     } else {
-      mip_rule(a, "<=", b, name, type=sapply(a, function(x) 'binary')) # needed for logical variables
+      mip_rule(a, op = "<=", b = b, rule = name, type=sapply(a, function(x) 'binary')) # needed for logical variables
     }
   } else {
-    mip_rule(-a, "<=", -b, name, type=sapply(a, function(x) 'binary')) # normalized version of a*x >= b
+    mip_rule(-a, op = "<=", b = -b, rule = name, type=sapply(a, function(x) 'binary')) # normalized version of a*x >= b
   }
 }
