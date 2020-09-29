@@ -159,14 +159,8 @@ as.expression.dnf <- function(x, as_if = FALSE, ...){
   parse(text=as.character(x, as_if = as_if, ...))
 }
 
-#' @export
-`[.dnf` <- function(x, ...){
-  xs <- unclass(x)[...]
-  class(xs) <- class(x)
-  xs
-}
-
 dnf_to_mip_rule <- function(d, name = "", ...){
+  #browser()
   islin <- sapply(d, is_lin_)
   d_l <- d[islin]
   if (any(islin)){
@@ -216,12 +210,13 @@ dnf_to_mip_rule <- function(d, name = "", ...){
 # translates the validator rules into mip rules
 to_miprules <- function(x, ...){
   check_validator(x, check_infeasible = FALSE)
-  can_translate <- is_linear(x) | is_categorical(x) | is_conditional(x) | is_local_variable(x)
-  if (!all(can_translate)){
-    warning("Ignoring rules: ", paste(names(x)[!can_translate], collapse = ", "))
-  }
-  x <- x[can_translate]
   exprs <- to_exprs(x)
+
+  can_translate <- is_linear(exprs) | is_categorical(exprs) | is_conditional(exprs)
+  if (!all(can_translate)){
+    warning("Ignoring rules: ", paste(names(exprs)[!can_translate], collapse = ", "))
+  }
+  exprs <- exprs[can_translate]
   mr <- lapply(names(exprs), function(name){
     e <- exprs[[name]]
     d <- as_dnf(e)

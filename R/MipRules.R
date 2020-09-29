@@ -4,7 +4,7 @@
 #' This is a utility class that translates a validor object into a mixed integer problem that
 #' can be solved.
 #' Most users should use \code{\link{locate_errors}} which will handle all translation and execution
-#' automatically. This class is provided so users can implement or derive a alternative solution.
+#' automatically. This class is provided so users can implement or derive an alternative solution.
 #'
 #' @section Methods:
 #' The \code{MipRules} class contains the following methods:
@@ -20,7 +20,7 @@
 #' rules <- validator(x > 1)
 #' mr <- miprules(rules)
 #' mr$to_lp()
-#' mr$set_values(list(x=0, weight=list(x=1)))
+#' mr$set_values(c(x=0), weights=c(x=1))
 #' mr$execute()
 #' @export miprules
 miprules <- setRefClass("MipRules",
@@ -29,6 +29,8 @@ miprules <- setRefClass("MipRules",
      objective     = "numeric",
      ._miprules   = "list",
      ._value_rules = "list",
+     ._vars        = "character",
+     ._vars_num    = "character",
      ._ignored     = "ANY",
      ._lp          = "ANY"
    ),
@@ -37,20 +39,38 @@ miprules <- setRefClass("MipRules",
        rules <<- rules
        objective <<- objective
        ._miprules <<- to_miprules(rules)
+
+       var_num <- sapply(._miprules, function(mr){
+                  names(mr$type)[mr$type == "double"]})
+       ._vars_num <<- unique(as.character(var_num))
+       ._vars <<- validate::variables(rules)
+       # remove variables that are not in data.frame but in the environment
+       ._vars <<- ._vars[!sapply(._vars, exists)]
      },
      mip_rules = function(){
        c(._miprules, ._value_rules)
      },
      set_values = function(values, weights){
+       #browser()
        if (missing(values) || length(values) == 0){
          objective <<- numeric()
          ._value_rules <<- list()
          return(invisible())
        }
+
+       missing_vars <- ._vars[!._vars %in% names(values)]
+       if (length(missing_vars)){
+          stop("Missing variable(s): "
+              , paste0("'", missing_vars, "'", collapse = ", ")
+              , "."
+              , call. = FALSE)
+       }
+
        if (missing(weights)){
          weights <- rep(1, length(values))
          names(weights) <- names(values)
        }
+
        ._value_rules <<- expect_values(values, weights)
        # TODO move this to the outside
        weights <- add_noise(weights)
@@ -61,12 +81,17 @@ miprules <- setRefClass("MipRules",
      },
      execute = function(...){
        # TODO see if this can be executed in parallel.
+       #browser()
        lp <- translate_mip_lp(mip_rules(), objective, ...)
        #TODO set timer, duration etc.
        s <- solve(lp)
+       #browser()
        values <- lpSolveAPI::get.variables(lp)
        names(values) <- colnames(lp)
-       adapt <- values[names(objective)] == 1
+       adapt <- objective < 0 # trick to create logical with names
+       adapt_nms <- names(adapt)[names(adapt) %in% names(values)]
+       adapt[adapt_nms] <- values[adapt_nms] == 1
+       # remove prefix
        names(adapt) <- gsub(".delta_", "", names(adapt))
        #TODO improve the return values based on value of s
        list(

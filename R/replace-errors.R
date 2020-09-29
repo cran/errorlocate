@@ -1,12 +1,16 @@
-#'  Replace erroneous fields with NA or a suggested value
+#' Replace erroneous fields with NA or a suggested value
 #'
-#' Find erronous fields using \code{\link{locate_errors}} and replace these
+#' Find erroneous fields using \code{\link{locate_errors}} and replace these
 #' fields automatically with NA or a suggestion that is provided by the error detection algorithm.
-#' @note In general it is better to replace the erronuous fields with \code{NA} and apply a proper
+#'
+#' Note that you can also use the result of \code{\link{locate_errors}} with \code{replace_errors}.
+#' When the procedure takes a long time and \code{locate_errors} was called previously
+#' this is the preferred way, because otherwise \code{locate_errors} will be executed again.
+#' The errors that were removed from the \code{data.frame} can be retrieved with the function
+#' \code{\link{errors_removed}}. For more control over error localization see \code{\link{locate_errors}}.
+#' @note In general it is better to replace the erroneous fields with \code{NA} and apply a proper
 #' imputation methods. Suggested values from the error localization method may introduce an unwanted bias.
 #'
-#' The errors that were removed from the \code{data.frame} can be retrieved with the function
-#'  \code{\link{errors_removed}}. For more control over error localization see \code{\link{locate_errors}}.
 #' @param data data to be checked
 #' @param x \code{\link{validator}} object
 #' @param ref optional reference data set
@@ -28,7 +32,7 @@ setGeneric("replace_errors", function( data
 setMethod('replace_errors', c("data.frame", "validator")
          , function(data, x, ref=NULL, ..., value = c("NA", "suggestion")){
   fh <- fh_localizer(x)
-  replace_errors(data, fh, ref, ..., value = value)
+  replace_errors(data, fh, ref, ...)
 })
 
 #' @export
@@ -39,7 +43,7 @@ setMethod('replace_errors', c("data.frame", "ErrorLocalizer")
                    , ...
                    , value = c("NA", "suggestion")){
   el <- locate_errors(data, x, ref, ...)
-  replace_errors(data, el, ref, ..., value = value)
+  replace_errors(data, el, ref, ...)
 })
 
 #' @export

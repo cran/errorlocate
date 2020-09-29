@@ -47,14 +47,26 @@ fh_localizer <-
         ._miprules <<- miprules(rules)
       },
       locate = function(data, weight=NULL, add_noise = TRUE, ..., timeout=60){
+        vars <- ._miprules$._vars
+        missing_vars <- vars[!vars %in% names(data)]
+
+        if (length(missing_vars)){
+          stop('Missing column(s): '
+              , paste0("'", missing_vars, "'", collapse = ", ")
+              , ". Add them to your data and rerun."
+              , call. = FALSE
+              )
+        }
         if (length(weight) == 0){
           weight <- matrix(1, nrow=nrow(data), ncol=ncol(data))
           colnames(weight) <- colnames(data)
         } else {
-          if (is.null(dim(weight)) && length(weight) == ncol(data)){
-            # use recycling to fill a weight matrix
-            weight <- t(matrix(weight, nrow=ncol(data), ncol=nrow(data)))
-            colnames(weight) <- colnames(data)
+          if (is.null(dim(weight))){
+            if (length(weight) == ncol(data)){
+              # use recycling to fill a weight matrix
+              weight <- t(matrix(weight, nrow=ncol(data), ncol=nrow(data)))
+              colnames(weight) <- colnames(data)
+            }
           }
           stopifnot(dim(weight) == dim(data))
           if (is.null(colnames(weight))){
@@ -62,41 +74,53 @@ fh_localizer <-
           }
           stopifnot(names(weight) == names(data))
         }
-        #browser()
-
-        # if (isTRUE(add_noise)){
-        #   weight <- add_noise(weight)
-        # }
 
         rows <- seq_len(nrow(data))
 
-        # TODO add suggestions, status and progress bar
+        # TODO add suggestions and status
         if (interactive()) {
           pb <- utils::txtProgressBar(min = 0, max=nrow(data))
         }
-        res <- sapply(rows, function(r){
-          # cat(".")
-          values <- data[r,,drop=FALSE]
-          ._miprules$set_values(values, weight[r,])
-          el <- ._miprules$execute(timeout=timeout, ...)
-          adapt <- el$adapt
-          rm(el)
-          gc()
-          if (interactive()){
-            value <- 1 + pb$getVal()
-            utils::setTxtProgressBar(pb, value)
-          }
-          adapt
-        })
-        if(interactive()){ close(pb) }
-        dim(res) <- dim(weight)[2:1]
-        adapt <- t(res)
-        colnames(adapt) <- colnames(weight)
 
-        weight_per_record <- as.numeric(tcrossprod(adapt, weight))
+
+        #TODO add ref data !!!
+
+        # filter for records that are valid..., that reduces the processing
+        # time considerably
+        cf <- validate::confront(data, rules)
+        invalid <- aggregate(cf, by = "record")$nfail > 0
+#        browser()
+        res <- matrix( FALSE
+                     , nrow = ncol(data)
+                     , ncol = nrow(data)
+                     , dimnames = list(names(data))
+                     )
+        #
+        if (any(invalid)){
+          res[, invalid] <- sapply(rows[invalid], function(r){
+            # cat(".")
+            values <- as.list(data[r,,drop=FALSE])
+            ._miprules$set_values(values, weight[r,])
+            el <- ._miprules$execute(timeout=timeout, ...)
+            adapt <- sapply(values, function(x){FALSE})
+            adapt[names(el$adapt)] <- el$adapt
+            rm(el)
+            gc()
+            if (interactive()){
+              value <- 1 + pb$getVal()
+              utils::setTxtProgressBar(pb, value)
+            }
+            adapt
+          })
+        }
+        if(interactive()){ close(pb) }
+
+        adapt <- t(res)
+ #       browser()
+        idx <- which(colnames(adapt) %in% colnames(weight))
+        weight_per_record <- as.numeric(tcrossprod(adapt[,idx], weight))
 
         is.na(adapt) <- is.na(data)
-        #browser()
         create_errorlocation(
           values = adapt,
           weight = weight_per_record

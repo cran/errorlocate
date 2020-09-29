@@ -79,4 +79,26 @@ describe("locate_errors", {
     le <- locate_errors(data, rules, weight=c(a=2, b=1))
     expect_equivalent(le$errors[1,], c(a = FALSE, b = TRUE))
   })
+
+  it ("handles a strict equality", {
+    rules <- validator(x == 0)
+    data <- data.frame(x = 0)
+    le <- locate_errors(data, rules)
+    expect_equivalent(le$errors[1,], FALSE)
+
+    data <- data.frame(x = 1)
+    le <- locate_errors(data, rules)
+    expect_equivalent(le$errors[1,], TRUE)
+  })
+
+  it ("errors on missing columns",{
+    rules <- validator(x > 0, y > 0)
+    data <- data.frame(y = 1)
+    expect_error(
+      le <- locate_errors(data, rules),
+      "Missing column"
+    )
+  })
 })
+
+
