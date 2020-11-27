@@ -26,11 +26,16 @@ is_condition_ <- function(expr, or=TRUE, top=TRUE, ...){
 #' Check if rules are conditional rules
 #'
 #' Check if rules are conditional rules
+#'
+#' @note \code{errorlocate} supports linear,
+#' categorical and conditional rules to be used in finding errors. Other rule types
+#' are ignored during error finding.
 #' @export
 #' @param rules validator object containing validation rules
 #' @param ... not used
 #' @return logical indicating which rules are conditional
 #' @example examples/conditional.R
+#' @family rule type
 is_conditional <- function(rules, ...){
   if (is.expression(rules)){
     return(sapply(rules, is_condition_))
@@ -41,10 +46,10 @@ is_conditional <- function(rules, ...){
   })
 }
 
+# this is obsolote, see dnf
 cond_as_mip_rules <- function(x, ...){
   cond_rules <- x[is_conditional(x)]
   mr <- lapply(cond_rules$rules, function(rule){
-    #browser()
     prefix <- paste0(rule@name, "._lin")
 
     rl <- replace_linear(rule@expr, prefix=prefix)
@@ -63,6 +68,7 @@ cond_as_mip_rules <- function(x, ...){
   unlist(mr, recursive = FALSE)
 }
 
+# this is obsolote, see dnf
 # replaces linear subexpressions with a binary variable
 # assumes that expresssion is conditional
 replace_linear <- function(e, prefix=".v"){
@@ -75,6 +81,7 @@ replace_linear <- function(e, prefix=".v"){
       )
 }
 
+# this is obsolote, see dnf
 rep_lin_ <- function(e, or=TRUE, h=new.env()){
   #browser()
   op <- op_to_s(e)

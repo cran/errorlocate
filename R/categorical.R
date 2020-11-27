@@ -43,7 +43,7 @@ cvi <- function(var, value, not){
 }
 
 # collect variable information within a rule, assumes that is_cat_ has been used
-# to check wether it is categorical
+# to check whether it is categorical
 get_catvar <- function(expr, not = FALSE){
   if (is.symbol(expr)){
     return(cvi(expr, TRUE, not))
@@ -71,10 +71,16 @@ get_catvar <- function(expr, not = FALSE){
 
 # generate binary variable names from vars and their values.
 bin_var_name <- function(x, infix=INFIX_CAT_NAME){
-  if (is.character(x$value)){
-    paste0(x$var, infix, x$value)
-  } else {
+  if (is.logical(x$value)){
     x$var
+  } else {
+    if (is.numeric(x$value)){
+      warning("'", x$var, "' seems a categorical variable, please recode it as a factor in the data.
+Only use character or logical values in %in% rules to prevent this warning.",
+              call. = FALSE)
+
+    }
+    paste0(x$var, infix, x$value)
   }
 }
 
@@ -84,14 +90,20 @@ cat_var_name <- function(x, infix=INFIX_CAT_NAME){
   gsub(suffix,"",names(x$a))
 }
 
+
 #' Check if rules are categorical
 #'
 #' Check if rules are categorical
+#'
+#' #' @note \code{errorlocate} supports linear,
+#' categorical and conditional rules to be used in finding errors. Other rule types
+#' are ignored during error finding.
 #' @export
 #' @param x validator or expression object
 #' @param ... not used
 #' @return logical indicating which rules are purely categorical/logical
 #' @example examples/categorical.R
+#' @family rule type
 is_categorical <- function(x, ...){
 
   if (is.expression(x)){
@@ -150,7 +162,10 @@ cat_mip_rule_ <- function(e, name, ...){
   }))
 
   if ( length(rule_l) == 1){
-    if (length(a) > 1 || op(e) == "=="){  # this is a strict(er) version and allows for some optimization
+    if  (length(a) > 1
+      || op(e) == "=="  # this is a strict(er) version and allows for some optimization
+      || is.character(rule_l[[1]]$value) # edge case when there is a single category.
+      ){
       mip_rule(a, op = "==", b = b, rule = name, type=sapply(a, function(x) 'binary'))
     } else {
       mip_rule(a, op = "<=", b = b, rule = name, type=sapply(a, function(x) 'binary')) # needed for logical variables

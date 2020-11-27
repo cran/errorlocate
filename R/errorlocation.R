@@ -24,36 +24,59 @@
 #'   \item \code{$errors}: \code{matrix} indicating which values are erronuous (\code{TRUE}),
 #'   missing (\code{NA}) or valid (\code{FALSE})
 #'   \item \code{$weight}: The total weight per record. A weight of 0 means no errors were detected.
+#'   \item \code{$status}: The \link[lpSolveAPI:solve.lpExtPtr]{status} of the mip solver for this record.
+#'   \item \code{$duration}: The number of seconds for processing each record.
 #' }
 #'
 #' @exportClass errorlocation
+#' @family error finding
 #' @rdname errorlocation
 create_errorlocation <- setRefClass('errorlocation',
   fields=list(
     ._call = 'call',
     ._values = 'matrix',
     ._weight = 'numeric',
-    ._status = 'list',
+    ._status = 'integer',
+    ._solution = 'logical',
+    ._duration = 'numeric',
     ._suggestion = 'list',
     errors = function(){
       ._values
     },
     weight = function(){
       ._weight
+    },
+    status = function(){
+      ._status
+    },
+    duration = function(){
+      ._duration
     }
   ),
   methods=list(
-    initialize = function(values=matrix(), status=list(), weight= rep(1, NROW(values)), suggestion=list()){
-      ._call <<- sys.call(-5)
+    initialize = function( values=matrix()
+                         , status=integer()
+                         , weight= rep(1, NROW(values))
+                         , suggestion=list()
+                         , duration=numeric()
+                         , solution = logical()
+                         ){
+      ._call <<- sys.call(-7)
       ._values <<- values
       ._status <<- status
+      ._duration <<- duration
       ._weight <<- weight
       ._suggestion <<- suggestion
+      ._solution <<- solution
     },
     show = function() {
       cat("call: ", deparse(._call), "\n")
       cat("located ", length(which(._values)), " error(s).\n")
       cat("located ", sum(is.na(._values)), " missing value(s).\n")
+      n_fail <- sum(!._solution)
+      if (n_fail > 0){
+        cat("Failed to find a solution for ", n_fail, "record(s).\n")
+      }
       cat("Use 'summary', 'values', '$errors' or '$weight', to explore and retrieve the errors.")
     }
   )
@@ -111,6 +134,8 @@ setMethod("summary", "errorlocation", summary.errorlocation)
 #' @param x \code{data.frame} that was checked for errors
 #' @param ... not used
 #' @return \code{\link{errorlocation-class}} object
+#' @example ./examples/replace_errors.R
+#' @family error finding
 #' @export
 errors_removed <- function(x, ...){
   attr(x, "errorlocation")

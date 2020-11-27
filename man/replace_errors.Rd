@@ -18,7 +18,9 @@ replace_errors(data, x, ref = NULL, ..., value = c("NA", "suggestion"))
 \arguments{
 \item{data}{data to be checked}
 
-\item{x}{\code{\link{validator}} object}
+\item{x}{\code{\link{validator}} or \code{errorlocation} object.
+If an \code{errorlocation} is already available (through \code{\link{locate_errors}}) this
+is more efficient.}
 
 \item{ref}{optional reference data set}
 
@@ -67,4 +69,10 @@ replace_errors(data, error_locations)
 }
 \seealso{
 \code{\link{errorlocation-class}}
+
+Other error finding: 
+\code{\link{errorlocation-class}},
+\code{\link{errors_removed}()},
+\code{\link{locate_errors}()}
 }
+\concept{error finding}

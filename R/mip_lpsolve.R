@@ -25,7 +25,11 @@ translate_mip_lp <- function( rules
 
   # TODO improve!
   lpSolveAPI::lp.control( lps,
-                          #presolve = "rows",
+                          presolve = c(
+                              "rows"
+                            , "cols"
+                            #, "probefix"
+                          ),
                           epsint = 1e-15,
                           epspivot = 1e-15,
                           ...
@@ -73,7 +77,7 @@ translate_mip_lp <- function( rules
     }
     lpSolveAPI::set.objfn(lps, unname(obj), columns)
   }
-
+  #browser()
   lpSolveAPI::set.constr.type(lps,types=ops)
 
   b <- ifelse(strict, lc$b - eps, lc$b)
@@ -84,6 +88,7 @@ translate_mip_lp <- function( rules
 # splits category names (<variable>:<category>) into variable column groups needed
 # for SOS1 constraints
 asSOS <- function(vars){
+  #TODO also add log lower boundary as SOS
   CAT <- ":.+"
 
   idx <- grepl(CAT, vars)

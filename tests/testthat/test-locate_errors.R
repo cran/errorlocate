@@ -99,6 +99,93 @@ describe("locate_errors", {
       "Missing column"
     )
   })
+
+  it ("can handle a wrong category", {
+    rules <- validator( x %in% c("B","A"))
+    data <- data.frame(x = "C")
+    res <- locate_errors(data, rules)$errors
+    expect_true(res)
+  })
+
+  it ("can handle a single category (issue #25", {
+    rules <- validator( x %in% c("A"))
+    data <- data.frame(x = "C")
+    res <- locate_errors(data, rules)$errors
+    expect_true(res)
+  })
+
+  it ("errors on using integer variables as categories",{
+    rules <- validator(if (sector %in% c(1,2)) turnover > 0)
+
+    # faulty record
+    data <- data.frame(sector = 1, turnover = 0)
+    weight <- c(sector = 2, turnover = 1)
+
+    # no errors found, but a warning is given
+    expect_warning({
+      expect_error({
+        el <- locate_errors(data, rules, weight=weight)$errors
+      })
+    })
+
+    # recoding as factor
+    data$sector <- factor(data$sector)
+    expect_warning({
+        el <- locate_errors(data, rules, weight=weight)$errors
+    })
+
+
+  })
+
+  it ("handles NA logical values",{
+    rules <- validator(if (age >=18) adult == TRUE)
+    data <- data.frame(age = 15, adult=NA)
+    el <- locate_errors(data, rules)$errors
+    expect_equal(el[1,], c(age=FALSE, adult=NA))
+  })
+
+  it ("handles variables that are not part of the linear rules gracefully",{
+    rules <- validator( x / y <= 1, x > 5)
+    data <- data.frame(x = 1L, y = 2L)
+    expect_warning({
+      el <- locate_errors(data, rules)
+    })
+    expect_equal(as.logical(el$errors), c(TRUE, FALSE))
+  })
+
+  it ("handles a contradiction in log constraints ",{
+    options(errorlocate.allow_log = TRUE)
+
+    rules <- validator(log(x) > log(4), x < 3)
+    d <- data.frame(x = 2)
+    expect_warning (
+      el <- locate_errors(d, rules)
+    )
+
+    options(errorlocate.allow_log = NULL)
+
+  })
+
+  it ("handles small log transformed variables ",{
+    options(errorlocate.allow_log = TRUE)
+
+    rules <- validator(log(x) > log(.1), x < 3)
+    d <- data.frame(x = 0.3)
+    el <- locate_errors(d, rules)
+
+    expect_false(as.logical(el$errors))
+
+    rules <- validator(log(x) > log(1), x < 3)
+    d <- data.frame(x = 1)
+    el <- locate_errors(d, rules)
+    mip <- inspect_mip(d, rules)
+    s <- mip$execute()
+
+    expect_true(as.logical(el$errors))
+
+    options(errorlocate.allow_log = NULL)
+
+  })
 })
 
 

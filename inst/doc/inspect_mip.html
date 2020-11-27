@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Inspecting the errorlocate Mixed Integer Program</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+<style type="text/css">
+a.anchor-section {margin-left: 10px; visibility: hidden; color: inherit;}
+a.anchor-section::before {content: '#';}
+.hasAnchor:hover a.anchor-section {visibility: visible;}
+</style>
+<script>// Anchor sections v1.0 written by Atsushi Yasumoto on Oct 3rd, 2020.
+document.addEventListener('DOMContentLoaded', function() {
+  // Do nothing if AnchorJS is used
+  if (typeof window.anchors === 'object' && anchors.hasOwnProperty('hasAnchorJSLink')) {
+    return;
+  }
+
+  const h = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+
+  // Do nothing if sections are already anchored
+  if (Array.from(h).some(x => x.classList.contains('hasAnchor'))) {
+    return null;
+  }
+
+  // Use section id when pandoc runs with --section-divs
+  const section_id = function(x) {
+    return ((x.classList.contains('section') || (x.tagName === 'SECTION'))
+            ? x.id : '');
+  };
+
+  // Add anchors
+  h.forEach(function(x) {
+    const id = x.id || section_id(x.parentElement);
+    if (id === '') {
+      return null;
+    }
+    let anchor = document.createElement('a');
+    anchor.href = '#' + id;
+    anchor.classList = ['anchor-section'];
+    x.classList.add('hasAnchor');
+    x.appendChild(anchor);
+  });
+});
+</script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Inspecting the errorlocate Mixed Integer Program</h1>
+
+
+
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(errorlocate)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Loading required package: validate</span></span></code></pre></div>
+<div id="intro" class="section level2">
+<h2>Intro</h2>
+<p>Errorlocate uses the linear, categorical and conditional rules from a rules set formulate with R package <a href="https://cran.r-project.org/package=validate"><code>validate</code></a>, to create a Mixed Integer Problem.</p>
+<p>The details of the translation are hidden in <code>locate_errors</code>, since for most users they are not relevant. Often the number of errors found and the processing time are much more relevant parameters.</p>
+<p>In few cases, you may run into a problems with your error localization problem:</p>
+<ol style="list-style-type: lower-alpha">
+<li>The processing time of (some of the records) of <code>locate_errors</code> is high.</li>
+<li><code>locate_errors</code> missresolveded an obvious error.</li>
+<li><code>locate_errors</code> indicates that it did not find a valid solution (for some records) .</li>
+</ol>
+<p>Problem a. can be by splitting your dataset and use a <code>parallel</code> solution and problem b, can be due to that <code>error_locate</code> ignores non-linear rules, but these problems may also indicate problems with your rules set.</p>
+<p>Problem with you rule set may be mitigated by using the <code>validatetools</code> package that can detect conflicting and redundant rules and has methods to simplify your rule set.</p>
+<p>If you want to dive deep into the mixed integer problem that is created by <code>error_locate</code> you can use the <code>inspect_mip</code> function.</p>
+</div>
+<div id="a-bit-of-theory" class="section level2">
+<h2>A bit of theory</h2>
+<p>In the following sections an example is given of how linear, categorical and conditional rules are written as Mixed Integer Problems. First let’s see how these rules in validator can be formally defined.</p>
+</div>
+<div id="formal-description" class="section level2">
+<h2>Formal description</h2>
+<div id="rule-r_imathbfx" class="section level3">
+<h3>Rule <span class="math inline">\(r_i(\mathbf{x})\)</span></h3>
+<p>Each translatable rule <span class="math inline">\(r_i(\mathbf{x})\)</span> can be written as a disjunction of atomic clauses: it is a function <span class="math inline">\(r_i\)</span> that operates on (some of) the values of record <span class="math inline">\(\mathbf{x} = (x_1, \ldots, x_n)\)</span> and is <code>TRUE</code> (valid) or <code>FALSE</code> (not valid)</p>
+<p><span class="math display">\[
+r_i(\mathbf{x}) = \bigvee_j C_i^j(\mathbf{x})
+\]</span></p>
+<p>with:</p>
+<p><span class="math display">\[
+C_i^j(\mathbf{x}) = \left\{
+  \begin{array}{l}
+ \mathbf{a}^T\mathbf{x} \leq b \\
+  \mathbf{a}^T\mathbf{x} = b \\
+  x_j \in F_{ij}  \textrm{with } F_{ij} \subseteq D_j \\
+  x_j \not\in F_{ij} \textrm{with } F_{ij} \subseteq D_j \\
+  \end{array}
+\right.
+\]</span></p>
+<p>Each linear, categorical or conditional rule <span class="math inline">\(r_i\)</span> can be written in this form.</p>
+</div>
+<div id="example" class="section level3">
+<h3>Example</h3>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>rules <span class="ot">&lt;-</span> <span class="fu">validator</span>(<span class="at">has_income =</span> <span class="cf">if</span> (income <span class="sc">&gt;</span> <span class="dv">0</span>) age <span class="sc">&gt;=</span> <span class="dv">16</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>rules<span class="sc">$</span><span class="fu">exprs</span>()</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $has_income</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; !(income &gt; 0) | (age &gt;= 16)</span></span></code></pre></div>
+<p>So the rule <code>if (income &gt; 0) age &gt;= 16</code> can be written as (<code>income &lt;= 0</code> OR <code>age &gt;=16</code>)</p>
+</div>
+</div>
+<div id="rule-system" class="section level2">
+<h2>Rule system:</h2>
+<p>The rules form a system <span class="math inline">\(R(\mathbf{x})\)</span>:</p>
+<p><span class="math display">\[
+R(\mathbf{x}) = \bigwedge_i r_i
+\]</span> which means that all rules <span class="math inline">\(r_i\)</span> must be valid. If <span class="math inline">\(R(\mathbf{x})\)</span> is true for record <span class="math inline">\(\mathbf{x}\)</span>, then the record is valid, otherwise one (or more) of the rules is violated.</p>
+</div>
+<div id="mixed-integer-programming-to-fh" class="section level2">
+<h2>Mixed Integer Programming to FH</h2>
+<p>Each rule set <span class="math inline">\(R(\mathbf{x})\)</span> can be translated into a mip problem and solved.</p>
+<p><span class="math display">\[
+\begin{array}{r}
+  \textrm{Minimize } f(\mathbf{x}) = 0; \\
+  \textrm{s.t. }\mathbf{Rx} \leq \mathbf{d} \\
+\end{array}
+\]</span> - <span class="math inline">\(f(\mathbf{x})\)</span> is the (weighted) number of changed variable: <span class="math inline">\(\delta_i \in {0,1}\)</span></p>
+<p><span class="math display">\[
+f(\mathbf{x}) = \sum_{i=1}^N w_i \delta_i
+\]</span></p>
+<ul>
+<li><p><span class="math inline">\(\mathbf{R}\)</span> contains rules:</p>
+<ul>
+<li><p><span class="math inline">\(\mathbf{R}_H(\mathbf{x}) \leq \mathbf{d}_H\)</span> that were specified with <code>validate</code>/<code>validator</code></p></li>
+<li><p><span class="math inline">\(\mathbf{R}_0(\mathbf{x}, \mathbf{\delta}) \leq \mathbf{d}_0\)</span> : soft constraints that try fix the current record of <span class="math inline">\(\mathbf{x}\)</span> to the observed values.</p></li>
+</ul></li>
+</ul>
+</div>
+<div id="enter-inspect_mip" class="section level2">
+<h2>Enter <code>inspect_mip</code>:</h2>
+<div id="linear-rules" class="section level3">
+<h3>Linear rules</h3>
+<p>Most users will use the function <code>locate_errors</code> to find errors. The function <code>inspect_mip</code> works exactly same, except that it operates on just one record in stead of a whole <code>data.frame</code>. The result of <code>inspect_mip</code> is a mip object, that is not yet executed and can be inspected.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>rules <span class="ot">&lt;-</span> <span class="fu">validator</span>( <span class="at">r1 =</span> age <span class="sc">&gt;=</span> <span class="dv">18</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>                  , <span class="at">r2 =</span> income <span class="sc">&gt;=</span> <span class="dv">0</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>                  )</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">age =</span> <span class="fu">c</span>(<span class="dv">12</span>, <span class="dv">35</span>), <span class="at">income =</span> <span class="fu">c</span>(<span class="dv">2000</span>, <span class="sc">-</span><span class="dv">1000</span>))</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>data</span></code></pre></div>
+<div class="kable-table">
+<table>
+<thead>
+<tr class="header">
+<th align="right">age</th>
+<th align="right">income</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">12</td>
+<td align="right">2000</td>
+</tr>
+<tr class="even">
+<td align="right">35</td>
+<td align="right">-1000</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>So we detect two errors in the dataset:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">confront</span>(data, rules))</span></code></pre></div>
+<div class="kable-table">
+<table>
+<thead>
+<tr class="header">
+<th align="left">name</th>
+<th align="right">items</th>
+<th align="right">passes</th>
+<th align="right">fails</th>
+<th align="right">nNA</th>
+<th align="left">error</th>
+<th align="left">warning</th>
+<th align="left">expression</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">r1</td>
+<td align="right">2</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="left">FALSE</td>
+<td align="left">FALSE</td>
+<td align="left">(age - 18) &gt;= -1e-08</td>
+</tr>
+<tr class="even">
+<td align="left">r2</td>
+<td align="right">2</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="left">FALSE</td>
+<td align="left">FALSE</td>
+<td align="left">(income - 0) &gt;= -1e-08</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">locate_errors</span>(data, rules)<span class="sc">$</span>errors</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;        age income</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1,]  TRUE  FALSE</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [2,] FALSE   TRUE</span></span></code></pre></div>
+<p>Lets inspect the first record</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>mip <span class="ot">&lt;-</span> <span class="fu">inspect_mip</span>(data, rules)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning: Taking record 1, ignoring rest of the records...</span></span></code></pre></div>
+<p>The <code>mip</code> object contains the mip problem before it is executed. We can inspect the lp problem, prior to solving it with <code>lpSolveApi</code> with</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># inspect the lp problem (prior to solving it with lpsolveAPI)</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>lp <span class="ot">&lt;-</span> mip<span class="sc">$</span><span class="fu">to_lp</span>()</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(lp)</span></code></pre></div>
+<pre><code>  Model name: 
+                        age          income      .delta_age   .delta_income           
+  Minimize                0               0  1.161533613224  1.432663474698           
+  r1                     -1               0               0               0  &lt;=    -18
+  r2                      0              -1               0               0  &lt;=      0
+  age_ub                  1               0          -1e+07               0  &lt;=     12
+  income_ub               0               1               0          -1e+07  &lt;=   2000
+  age_lb                 -1               0          -1e+07               0  &lt;=    -12
+  income_lb               0              -1               0          -1e+07  &lt;=  -2000
+  Kind                  Std             Std             Std             Std           
+  Type                 Real            Real             Int             Int           
+  Upper                 Inf             Inf               1               1           
+  Lower                -Inf            -Inf               0               0</code></pre>
+<p>Validator rules <code>r1</code> and <code>r2</code> are encoded in two lines of the model. The values of the current record are encoded as soft contraints in <code>age_ub</code>, <code>age_lb</code>, <code>income_lb</code> and <code>income_ub</code>. These constraints try to fix the values of <code>age</code> at 12 and <code>income</code> at 2000, but can be violated, setting <code>.delta_age</code> or <code>.delta_income</code> to 1.</p>
+<p>For large problems the lp problem can be written to disk for inspection</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>lpSolveAPI<span class="sc">::</span><span class="fu">write.lp</span>(lp, <span class="st">&quot;my_problem.lp&quot;</span>)</span></code></pre></div>
+<p>Once we execute the mip project, the lp solver is executed on the problem:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> mip<span class="sc">$</span><span class="fu">execute</span>()</span></code></pre></div>
+<p>Extra arguments are passed through to <code>lpSolveAPI</code>. The result object contains several properties:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(res)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;s&quot;        &quot;solution&quot; &quot;values&quot;   &quot;lp&quot;       &quot;adapt&quot;    &quot;errors&quot;</span></span></code></pre></div>
+<p><code>res$solution</code> indicates of a solution was found</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>res<span class="sc">$</span>solution</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
+<p><code>res$s</code> indicates the <code>lpSolveAPI</code> status, what kind of solution was found.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>res<span class="sc">$</span>s</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 0</span></span></code></pre></div>
+<p><code>res$errors</code> indicates which fields/values are deemed erroneous:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>res<span class="sc">$</span>errors</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    age income </span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   TRUE  FALSE</span></span></code></pre></div>
+<p><code>res$values</code> contains the values for the valid solution that has been found by the lpsolver:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>res<span class="sc">$</span>values</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;           age        income    .delta_age .delta_income </span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;            18          2000             1             0</span></span></code></pre></div>
+<p>Note that the solver has found that setting <code>age</code> from 12 to 18 gives a valid solution. <code>.delta_age = 1</code> indicates that <code>age</code> contained an error.</p>
+<p>The result object <code>res</code> also contains an <code>lp</code> object after optimization. This object can be further investigated using <code>lpSolveAPI</code> functions.</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># lp problem after solving</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>res<span class="sc">$</span>lp</span></code></pre></div>
+<pre><code>  Model name: 
+                        age          income      .delta_age   .delta_income           
+  Minimize                0               0  1.161533613224  1.432663474698           
+  age_ub                  1               0          -1e+07               0  &lt;=     12
+  income_ub               0               1               0          -1e+07  &lt;=   2000
+  income_lb               0              -1               0          -1e+07  &lt;=  -2000
+  Kind                  Std             Std             Std             Std           
+  Type                 Real            Real             Int             Int           
+  Upper                 Inf             Inf               1               1           
+  Lower                  18               0               0               0</code></pre>
+<p>Note that the lp problem has been simplified. For example the single variable constraints,the lp problem/object after solving shows that the solver has optimized some of the rules: it has moved rule <code>r1</code> and <code>r2</code> into the <code>Lower boundary</code> conditions. It also removed <code>age_lb</code> because that was superfluous with respect to the boundary conditions.</p>
+</div>
+<div id="categorical-rule" class="section level3">
+<h3>Categorical rule</h3>
+<p>In categorical rules, each category is coded in a separate column/mip variable: e.g. if we have a <code>working</code> variable, with two categories (“job,” “retired”), the mip problem is encoded as follows:</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>rules <span class="ot">&lt;-</span> <span class="fu">validator</span>( <span class="at">r1 =</span> working <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;job&quot;</span>,<span class="st">&quot;retired&quot;</span>)                  )</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">working=</span><span class="st">&quot;?&quot;</span>)</span></code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th align="left">working</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">?</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>mip <span class="ot">&lt;-</span> <span class="fu">inspect_mip</span>(data, rules)</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>mip<span class="sc">$</span><span class="fu">to_lp</span>()</span></code></pre></div>
+<pre><code>  Model name: 
+                  working:?      working:job  working:retired   .delta_working      
+  Minimize                0                0                0   1.632884546416      
+  r1                      0                1                1                0  =  1
+  working                 1                0                0                1  =  1
+  Kind                  SOS              SOS              SOS              Std      
+  Type                  Int              Int              Int              Int      
+  Upper                   1                1                1                1      
+  Lower                   0                0                0                0</code></pre>
+<p>Row <code>r1</code> indicates that either <code>working:job</code> or <code>working:retired</code> must be true. The <code>Kind</code> row (<code>SOS</code>) indicates that these variables share the same switch, only one of them can be set.</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>mip<span class="sc">$</span><span class="fu">execute</span>()<span class="sc">$</span>values</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       working:?     working:job working:retired  .delta_working </span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;               0               1               0               1</span></span></code></pre></div>
+<div id="multiple-categories" class="section level4">
+<h4>Multiple categories:</h4>
+<p>With categorical variables it is also possible to specify <code>if-then</code> rules. These are encoded as one mip rule:</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>rules <span class="ot">&lt;-</span> <span class="fu">validator</span>( <span class="at">r1 =</span> <span class="cf">if</span> (voted <span class="sc">==</span> <span class="cn">TRUE</span>) adult <span class="sc">==</span> <span class="cn">TRUE</span>)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">voted =</span> <span class="cn">TRUE</span>, <span class="at">adult =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th align="left">voted</th>
+<th align="left">adult</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">TRUE</td>
+<td align="left">FALSE</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>mip <span class="ot">&lt;-</span> <span class="fu">inspect_mip</span>(data, rules)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>mip<span class="sc">$</span><span class="fu">to_lp</span>()</span></code></pre></div>
+<pre><code>  Model name: 
+                     adult           voted    .delta_adult    .delta_voted       
+  Minimize               0               0  1.235451197136  1.064567862194       
+  r1                    -1               1               0               0  &lt;=  0
+  voted                  0               1               0               1   =  1
+  adult                 -1               0               1               0   =  0
+  Kind                 Std             Std             Std             Std       
+  Type                 Int             Int             Int             Int       
+  Upper                  1               1               1               1       
+  Lower                  0               0               0               0</code></pre>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>mip<span class="sc">$</span><span class="fu">execute</span>()<span class="sc">$</span>values</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;        adult        voted .delta_adult .delta_voted </span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;            0            0            0            1</span></span></code></pre></div>
+</div>
+</div>
+<div id="conditional-rule" class="section level3">
+<h3>Conditional rule</h3>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>rules <span class="ot">&lt;-</span> <span class="fu">validator</span>( <span class="at">r1 =</span> <span class="cf">if</span> (income <span class="sc">&gt;</span> <span class="dv">0</span>) age <span class="sc">&gt;=</span> <span class="dv">16</span>)</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">age =</span> <span class="dv">12</span>, <span class="at">income =</span> <span class="dv">2000</span>)</span></code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th align="right">age</th>
+<th align="right">income</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">12</td>
+<td align="right">2000</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>mip <span class="ot">&lt;-</span> <span class="fu">inspect_mip</span>(data, rules)</span></code></pre></div>
+<p><code>errorlocate</code> encodes this rule into multiple rules (as noted in the theoreteical section above), so rule <code>r1</code> is chopped into 1 rule + 2 sub rules:</p>
+<p><code>r1: if (income &gt; 0) age &gt;= 0</code>:</p>
+<ul>
+<li><p><code>r1._lin1: if (r1._lin1 == FALSE) income &lt;= 0</code></p></li>
+<li><p><code>r1._lin2: if (r1._lin2 == FALSE) age &gt;= 16</code></p></li>
+<li><p><code>r1: r1._lin1 == FALSE | r1._lin2 == FALSE</code></p></li>
+</ul>
+<p>This can be seen with:</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>mip<span class="sc">$</span><span class="fu">mip_rules</span>()</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [[1]]</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; r1: r1._lin1 + r1._lin2 &lt;= 1</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [[2]]</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; r1._lin1: income - 1e+07*r1._lin1 &lt;= 0</span></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [[3]]</span></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; r1._lin2: -age - 1e+07*r1._lin2 &lt;= -16</span></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [[4]]</span></span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; income_ub: income - 1e+07*.delta_income &lt;= 2000</span></span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [[5]]</span></span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; age_ub: age - 1e+07*.delta_age &lt;= 12</span></span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [[6]]</span></span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; income_lb: -income - 1e+07*.delta_income &lt;= -2000</span></span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [[7]]</span></span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; age_lb: -age - 1e+07*.delta_age &lt;= -12</span></span></code></pre></div>
+<p>The resulting lp model is:</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>mip<span class="sc">$</span><span class="fu">to_lp</span>()</span></code></pre></div>
+<pre><code>  Model name: 
+                        age          income      .delta_age   .delta_income        r1._lin1        r1._lin2           
+  Minimize                0               0  1.129067913862  1.407511784346               0               0           
+  r1                      0               0               0               0               1               1  &lt;=      1
+  r1._lin1                0               1               0               0          -1e+07               0  &lt;=      0
+  r1._lin2               -1               0               0               0               0          -1e+07  &lt;=    -16
+  income_ub               0               1               0          -1e+07               0               0  &lt;=   2000
+  age_ub                  1               0          -1e+07               0               0               0  &lt;=     12
+  income_lb               0              -1               0          -1e+07               0               0  &lt;=  -2000
+  age_lb                 -1               0          -1e+07               0               0               0  &lt;=    -12
+  Kind                  Std             Std             Std             Std             Std             Std           
+  Type                 Real            Real             Int             Int             Int             Int           
+  Upper                 Inf             Inf               1               1               1               1           
+  Lower                -Inf            -Inf               0               0               0               0</code></pre>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>mip<span class="sc">$</span><span class="fu">execute</span>()<span class="sc">$</span>values</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;           age        income    .delta_age .delta_income      r1._lin1 </span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;            16          2000             1             0             1 </span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;      r1._lin2 </span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;             0</span></span></code></pre></div>
+</div>
+<div id="alltogether" class="section level3">
+<h3>Alltogether:</h3>
+<p>This works together with categorical, linear and conditional rules.</p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>rules <span class="ot">&lt;-</span> <span class="fu">validator</span>( <span class="at">r1 =</span> working <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;no_job&quot;</span>, <span class="st">&quot;job&quot;</span>,<span class="st">&quot;retired&quot;</span>)</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>                  , <span class="at">r2 =</span> <span class="cf">if</span> (age <span class="sc">&lt;</span> <span class="dv">12</span>) working <span class="sc">==</span> <span class="st">&quot;no_job&quot;</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>                  , <span class="at">r3 =</span> <span class="cf">if</span> (working <span class="sc">==</span> <span class="st">&quot;retired&quot;</span>) age <span class="sc">&gt;</span> <span class="dv">50</span></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>                  , <span class="at">r4 =</span> age <span class="sc">&gt;=</span><span class="dv">0</span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>                  )</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">age =</span> <span class="dv">12</span>, <span class="at">working=</span><span class="st">&quot;retired&quot;</span>)</span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>mip <span class="ot">&lt;-</span> <span class="fu">inspect_mip</span>(data, rules)</span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>mip<span class="sc">$</span><span class="fu">execute</span>()<span class="sc">$</span>errors</span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; working     age </span></span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   FALSE    TRUE</span></span></code></pre></div>
+</div>
+<div id="weights" class="section level3">
+<h3>Weights</h3>
+<p>The weights for each variable are normally set to 1, and <code>errorlocate</code> adds some random remainder to the weights: so the solutions are unique and reproducible (using <code>set.seed</code>).</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>rules <span class="ot">&lt;-</span> <span class="fu">validator</span>( <span class="at">r1 =</span> <span class="cf">if</span> (voted <span class="sc">==</span> <span class="cn">TRUE</span>) adult <span class="sc">==</span> <span class="cn">TRUE</span>)</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">voted =</span> <span class="cn">TRUE</span>, <span class="at">adult =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>mip <span class="ot">&lt;-</span> <span class="fu">inspect_mip</span>(data, rules, <span class="at">weight =</span> <span class="fu">c</span>(<span class="at">voted =</span> <span class="dv">3</span>, <span class="at">adult=</span><span class="dv">1</span>))</span></code></pre></div>
+<p><code>$objective</code> contains the generated weights:</p>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>mip<span class="sc">$</span>objective</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; .delta_voted .delta_adult </span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     3.457403     1.468538</span></span></code></pre></div>
+<p>These are assigned to the <code>delta</code> variables in the objective function of the mip.</p>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>mip<span class="sc">$</span><span class="fu">to_lp</span>()</span></code></pre></div>
+<pre><code>  Model name: 
+                     adult           voted    .delta_adult    .delta_voted       
+  Minimize               0               0  1.468537706648  3.457403021748       
+  r1                    -1               1               0               0  &lt;=  0
+  voted                  0               1               0               1   =  1
+  adult                 -1               0               1               0   =  0
+  Kind                 Std             Std             Std             Std       
+  Type                 Int             Int             Int             Int       
+  Upper                  1               1               1               1       
+  Lower                  0               0               0               0</code></pre>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

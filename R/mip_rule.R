@@ -25,13 +25,14 @@ as.character.mip_rule <- function(x, ...){
   a <- gsub("\\b1\\*", "", a) # "1*" => ""
   a <- gsub("\\+ -", "- ", a) # "+ -" => "- "
 
+#  browser()
   paste0(a, " ",x$op, " ", x$b, sep = "")
 }
 
 print.mip_rule <- function(x, ...){
   a <- paste0(x$a, "*", names(x$a), collapse= ' + ')
 
-  # do some simplication
+  # do some simplification
   a <- gsub("\\b1\\*", "", a) # "1*" => ""
   a <- gsub("\\+ -", "- ", a) # "+ -" => "- "
 
@@ -64,6 +65,12 @@ get_mr_rules <- function(x, ...){
 # get a coefficient matrix from a list of mip_rule objects
 get_mr_matrix <- function(x, ...){
   variable <- get_mr_vars(x, ...)
+  # needed for variables sticking together
+  # could need some
+  variable <- sort(variable)
+  # just aesthetics...
+  .delta <- grepl("^.delta|._lin", variable)
+  variable <- c(variable[!.delta], variable[.delta])
   rule <- get_mr_rules(x, ...)
   n_rule <- length(rule)
   n_variable <- length(variable)
@@ -90,6 +97,16 @@ get_mr_type <- function(x, ...){
   vars <- names(type)
   df <- unique(data.frame(vars=vars, type=type, stringsAsFactors = FALSE))
   setNames(df$type, df$vars)
+}
+
+get_mr_numeric_vars <- function(x, ...){
+  type <- unlist(sapply(x, function(mr){
+    mr$type
+  }, simplify = FALSE))
+  vars <- unlist(sapply(x, cat_var_name))
+  df <- unique(data.frame(vars=vars, type=type, stringsAsFactors = FALSE))
+  df$vars[df$type == "double"]
+  # setNames(df$type, df$vars)
 }
 
 get_mr_expression <- function(x, ...){

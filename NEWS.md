@@ -1,10 +1,23 @@
+# errorlocate 0.5.1
+
+* Better name generation for soft linear equality constraints
+* Only values of the data.frame that are used in the constraints are added to the matrix.
+* Fix for issue #25, when a variable contains only one category. Thanks to @nickforr.
+* Fix/warning for issue #27, using an integer variable for categories. Thanks to Jeffrey Hoogland for reporting.
+* Fix for handling NA logical values (issue #29).
+* Added status and duration info to `errorlocation`. Thanks to Sander Scholtus
+* Improved progress bar, showing percentage and taking into account records without errors
+* added `inspect_mip` function, allowing for an in depth examination of the mip translation
+and execution. Making it easier to debug/find what is wrong with a record / rule set
+* experimental functionality for log transformed variables, can be switched on with
+`options(errorlocate.allow_log = TRUE)`. This makes it possible to formulate constraints
+`total_salary >= min_salary * n_employees` as 
+`log(total_salary) >= log(min_salary) + log(n_employees)`.
+
 # errorlocate 0.4
 
 * Implemented optimization, only invalid records are now treated. Can greatly
 enhance processing time! Thanks to Jos de Waard.
-
-# errorlocate 0.3.3
-
 * Fixed issue #21, thanks to Sander Scholtus: strict equalities
 * Fixed issue #22, thanks to Sander Scholtus: missing columns in data.
 * Fixed issue #23, "<var> =="" FALSE in if clause was handled incorrectly.

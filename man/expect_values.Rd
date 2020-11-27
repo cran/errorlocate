@@ -4,15 +4,18 @@
 \alias{expect_values}
 \title{expect values}
 \usage{
-expect_values(values, weights, ...)
+expect_values(values, weights, delta_names = NULL, ...)
 }
 \arguments{
 \item{values}{named list of values.}
 
 \item{weights}{named numeric of equal length as values.}
 
+\item{delta_names}{alternative names for binary variables. (used for log)}
+
 \item{...}{not used}
 }
 \description{
 expect values
 }
+\keyword{internal}

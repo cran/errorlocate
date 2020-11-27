@@ -66,4 +66,12 @@ locate_errors(data, v_logical, weight=c(2,1))$errors
 v <- validator( married \%in\% c(TRUE, FALSE), if (married==TRUE) age >= 17 )
 data <- data.frame( married = TRUE, age = 16)
 locate_errors(data, v, weight=c(married=1, age=2))$errors
+
 }
+\seealso{
+Other error finding: 
+\code{\link{errorlocation-class}},
+\code{\link{errors_removed}()},
+\code{\link{replace_errors}()}
+}
+\concept{error finding}
