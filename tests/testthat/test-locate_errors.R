@@ -22,7 +22,7 @@ describe("locate_errors", {
     v_categorical <- validator( A %in% c("a1", "a2")
                               , B %in% c("b1", "b2")
                               ,  if (A == "a1") B == "b1"
-    )
+                              )
 
     set.seed(42) # because of random noise added to weight
     data <- data.frame(A = c("a1", "a2"), B = c("b2", "b2"))
@@ -144,8 +144,15 @@ describe("locate_errors", {
     expect_equal(el[1,], c(age=FALSE, adult=NA))
   })
 
-  it ("handles variables that are not part of the linear rules gracefully",{
+  it ("rewrites ratio",{
     rules <- validator( x / y <= 1, x > 5)
+    data <- data.frame(x = 4L, y = 10L)
+    el <- locate_errors(data, rules)
+    expect_equal(as.logical(el$errors), c(TRUE, FALSE))
+  })
+
+  it ("handles variables that are not part of the linear rules gracefully",{
+    rules <- validator( sin(x) <= 1, x > 5)
     data <- data.frame(x = 1L, y = 2L)
     expect_warning({
       el <- locate_errors(data, rules)
@@ -185,6 +192,34 @@ describe("locate_errors", {
 
     options(errorlocate.allow_log = NULL)
 
+  })
+
+  it("handles values >=1e7 gracefully, issue #30", {
+    rules <- validator( profit == turnover - cost
+                        , cost >= 0.6 * turnover
+                        , turnover >= 0
+    )
+
+    data <- data.frame(profit = 1e10, cost = 200, turnover = 300)
+
+    expect_warning({
+      el <- locate_errors(data, rules)
+    })
+    expect_equal(el$errors[1,], c(profit=NA, cost=FALSE, turnover=FALSE))
+
+    expect_warning({
+      data_na <- replace_errors(data, rules)
+    })
+    expect_equivalent(data_na[1,], data.frame(profit=NA_real_, cost=200, turnover=300))
+  })
+
+  it ("handles NA values gracefully, issue #31", {
+    d <- data.frame(x = 10, y = NA, z = 5)
+    rules <- validator( x + y == z, x >= 0, y >= 0)
+
+    set.seed(1)
+    el <- locate_errors(d, rules)
+    expect_equal(el$errors[1,], c(x=TRUE, y = NA, z = FALSE))
   })
 })
 

@@ -1,18 +1,18 @@
 #' Create a mip object from a validator object
 #'
-#' Create a mip object from \code{\link{validator}} object.
+#' Create a mip object from [validator()] object.
 #' This is a utility class that translates a validor object into a mixed integer problem that
 #' can be solved.
-#' Most users should use \code{\link{locate_errors}} which will handle all translation and execution
+#' Most users should use [locate_errors()] which will handle all translation and execution
 #' automatically. This class is provided so users can implement or derive an alternative solution.
 #'
 #' @section Methods:
-#' The \code{MipRules} class contains the following methods:
+#' The `MipRules` class contains the following methods:
 #' \itemize{
-#'   \item \code{$execute()} calls the mip solver to execute the rules.
-#'   \item \code{$to_lp()}: transforms the object into a lp_solve object
-#'   \item \code{$is_infeasible} Checks if the current system of mixed integer rules is feasible.
-#'   \item \code{$set_values}: set values and weights for variables (determines the objective function).
+#'   \item `$execute()` calls the mip solver to execute the rules.
+#'   \item `$to_lp()`: transforms the object into a lp_solve object
+#'   \item `$is_infeasible` Checks if the current system of mixed integer rules is feasible.
+#'   \item `$set_values`: set values and weights for variables (determines the objective function).
 #' }
 #'
 #' @family Mixed Integer Problem
@@ -38,7 +38,8 @@ miprules <- setRefClass("MipRules",
      ._lp          = "ANY"
    ),
    methods = list(
-     initialize = function(rules, n = 10){
+     initialize = function(rules = NULL, n = 10){
+       if (is.null(rules)){ return()}
        rules <<- rules
        objective <<- objective
 
@@ -66,8 +67,9 @@ miprules <- setRefClass("MipRules",
      },
      set_values = function( values
                           , weights
-                          , log_values = log_derived_data(values, ._log_transform)
-                          , delta_names= ._log_transform$num_vars){
+                          #, log_values = log_derived_data(values, ._log_transform)
+                          #, delta_names= ._log_transform$num_vars)
+                          ){
        if (missing(values) || length(values) == 0){
          objective <<- numeric()
          ._value_rules <<- list()
@@ -94,13 +96,13 @@ miprules <- setRefClass("MipRules",
        # TODO if missing log_values, derive it inplace
 
        ._value_rules <<- expect_values(values, weights)
-       if (length(log_values)){
-          weights_ld <- weights[delta_names]
-          names(weights_ld) <- names(log_values)
-          names(delta_names) <- names(log_values)
-          log_value_rules <- expect_values(log_values, weights = weights_ld, delta_names)
-          ._value_rules <<- c(._value_rules, log_value_rules)
-       }
+       # if (length(log_values)){
+       #    weights_ld <- weights[delta_names]
+       #    names(weights_ld) <- names(log_values)
+       #    names(delta_names) <- names(log_values)
+       #    log_value_rules <- expect_values(log_values, weights = weights_ld, delta_names)
+       #    ._value_rules <<- c(._value_rules, log_value_rules)
+       # }
 
        # TODO move this to the outside
        weights <- add_noise(weights)
@@ -120,7 +122,6 @@ miprules <- setRefClass("MipRules",
      },
      execute = function(...){
        # TODO see if this can be executed in parallel.
-       #browser()
        lp <- translate_mip_lp(mip_rules(), objective, ...)
        #TODO set timer, duration etc.
        s <- solve(lp)
@@ -131,9 +132,9 @@ miprules <- setRefClass("MipRules",
                            "2" = FALSE, # infeasible
                            "3" = TRUE,  # unbounded (so feasible)
                            "4" = TRUE,  # degenerate (so feasible)
-                           "5" = NA,    # numerical failure, so unknown
-                           "6" = NA,    # process aborted
-                           "7" = NA,    # timeout
+                           # "5" = NA,    # numerical failure, so unknown
+                           # "6" = NA,    # process aborted
+                           # "7" = NA,    # timeout
                            "9" = TRUE,  # presolved
                            "10" = FALSE, # branch and bound failed
                            "11" = FALSE, # branch and bound stopped
@@ -141,7 +142,7 @@ miprules <- setRefClass("MipRules",
                            "13" = FALSE, # no feasible branch and bound found
                            FALSE
        )
-       if (solution){
+       if (isTRUE(solution)){
           values <- lpSolveAPI::get.variables(lp)
        } else {
           values <- rep(1, ncol(lp))
@@ -179,7 +180,10 @@ miprules <- setRefClass("MipRules",
        obj <- rep(1, length(vars))
        names(obj) <- vars
 
-       lp <- translate_mip_lp(mr, obj)
+       lp <- translate_mip_lp( mr
+                             , obj
+                             , break.at.first = TRUE
+                             )
        i <- lpSolveAPI::solve.lpExtPtr(lp)
        feasible <- switch( as.character(i),
           "0" = TRUE,  # optimal solution found (so feasible)

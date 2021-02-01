@@ -7,7 +7,7 @@ log_extract <- function(log_vars){
   log_fn <- sapply( regmatches(log_vars, m)
                   , function(x){x[[2]]}
                   )
-  data.frame(num_vars, log_vars, log_fn)
+  data.frame(num_vars, log_vars, log_fn, stringsAsFactors = FALSE)
 }
 
 # create data columns used to set values for log transformed variables.
@@ -31,7 +31,10 @@ create_log_constraints <- function(li, data = NULL, n = 10, r = c(1,1e5)){
   lc <- lapply(seq_len(nrow(li)), function(i){
     num_var <- li$num_vars[i]
     if (!is.null(data[[num_var]])){
-      r <- range(data[[num_var]], na.rm = TRUE)
+      r2 <- range(data[[num_var]], na.rm = TRUE)
+      if (all(is.finite(r2))){
+        r <- r2
+      }
     }
     log_constraint_rules( li$num_vars[i]
                         , li$log_vars[i]
@@ -47,50 +50,58 @@ create_log_constraints <- function(li, data = NULL, n = 10, r = c(1,1e5)){
   lc
 }
 
-log_constraint_rules <- function(num_var, log_var, logfn, n = 10, r = c(1,1e5)){
+log_constraint_rules <- function( num_var, log_var, logfn, n = 10, r = c(1,1e5)
+                                , d = NULL
+                                ){
   stopifnot(n > 1)
-
   r[1] <- max(r[1], 1)
   if (r[1] >=  r[2]){
     r <- c(r[1]/10, 10*r[1])
   }
 
+  # retrieve log function
+  log_f <- get(logfn)
+  exp_f <- switch( logfn
+                 , log10 = function(x){10^x}
+                 , log1p = expm1
+                 , exp
+                 )
+
   # sample points based on slope
-  value_log <- seq(log(r[1]), log(r[2]), length.out = n)
-  value <- exp(value_log) # log distributed points covering range.
+  value_log <- seq(log_f(r[1]), log_f(r[2]), length.out = n)
+  value_log <- unique(sort(c(value_log, d)))
 
-  # TODO value_log again (to cope with that logfn can be different from "log")
+  value <- exp_f(value_log) # log distributed points covering range.
+  f_value <- value_log
 
-  # upper bound!
-  upper <-
-    lapply(seq_len(n), function(i){
-      a <- c(1, -1/value[i])
-      names(a) <- c(log_var, num_var)
-      b <- value_log[i] - 1
-      rule <- paste0(log_var, ".upperbound_",i)
-      mip_rule(a, "<=", b, rule = rule)
-    })
+  # create points
+  points <- paste0(num_var, "._x", sprintf("%03d", seq_len(n)))
 
-  # lowerbound, more nasty...
-  d_x <- diff(value)
-  d_y <- diff(value_log)
+  # function rule:
+  a <- c(-1, f_value)
+  names(a) <- c(log_var, points)
 
-  as <- d_y / d_x # check if d_x is zero?
-  bs <- value_log[-n] - as * value[-n]
+  func_rule <- mip_rule( a = a
+                    , op = "=="
+                    , b = 0
+                    , rule = paste0(log_var, ".", "func"))
+  # ref rule:
+  a <- c(-1, value)
+  names(a) <- c(num_var, points)
+  ref_rule <- mip_rule( a = a
+                         , op = "=="
+                         , b = 0
+                         , rule = paste0(log_var, ".", "ref"))
 
-  lower <- structure(
-    lapply(seq_len(n-1), function(i){
-      substitute( log_var >= a * num_var + b
-                , list( a = as[i]
-                      , b=bs[i]
-                      , log_var = as.symbol(log_var)
-                      , num_var = as.symbol(num_var)
-                      )
-                )
-    }), class="dnf"
-  )
-  lower <- dnf_to_mip_rule(lower, name = paste0(log_var, ".lowerbound"))
-  c(upper, lower)
+  # convex rule:
+  a <- rep(1, length(points))
+  names(a) <- points
+  cvx_rule <- mip_rule( a = a
+                       , op = "=="
+                       , b = 1
+                       , rule = paste0(log_var, ".", "cvx"))
+
+  list(func_rule, ref_rule, cvx_rule)
 }
 
 # TODO add to  tests

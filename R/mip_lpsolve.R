@@ -6,7 +6,7 @@
 #' @param  rules mip rules
 #' @param objective function
 #' @param eps accuracy for equality/inequality
-#' @param ... additional \code{\link{lp.control}} parameters that are set for the mip problem
+#' @param ... additional [lp.control()] parameters that are set for the mip problem
 translate_mip_lp <- function( rules
                             , objective=NULL
                             , eps = 1e-3
@@ -23,6 +23,7 @@ translate_mip_lp <- function( rules
                             , ncol = nvar
                             )
 
+  lpSolveAPI::name.lp(lps, "errorlocate")
   # TODO improve!
   lpSolveAPI::lp.control( lps,
                           presolve = c(
@@ -69,11 +70,32 @@ translate_mip_lp <- function( rules
     )
   }
 
+  # should improve performance quite a lot: a SOS1 makes bin variables exclusive.
+  for (sos2 in asSOS2(colnames(lps))){
+    lpSolveAPI::set.bounds(lps
+                          , lower=rep(0L, length(sos2$columns))
+                          , upper=rep(1L, length(sos2$columns))
+                          , columns=sos2$columns
+                          )
+
+    lpSolveAPI::add.SOS( lps, sos2$name,
+                         type=2, priority = 1,
+                         columns=sos2$columns,
+                         weights = sos2$weights
+    )
+
+  }
+
   if (length(objective)){
     obj <- objective[objective != 0]
     columns <- match(names(obj), colnames(A))
-    if (any(is.na(columns))){
-      stop("Invalid objective function")
+
+    # this is due to NA variables that are not part of the problem any more...
+
+    if (any(is_na <- is.na(columns))){
+      obj <- obj[!is_na]
+      columns <- columns[!is_na]
+      #stop("Invalid objective function")
     }
     lpSolveAPI::set.objfn(lps, unname(obj), columns)
   }
@@ -82,6 +104,7 @@ translate_mip_lp <- function( rules
 
   b <- ifelse(strict, lc$b - eps, lc$b)
   lpSolveAPI::set.constr.value(lps, b)
+#  print(colnames(lps))
   lps
 }
 
@@ -104,6 +127,24 @@ asSOS <- function(vars){
   }, simplify=FALSE)
 }
 
+# splits category names (<variable>:<category>) into variable column groups needed
+# for SOS1 constraints
+asSOS2 <- function(vars){
+
+  #TODO also add log lower boundary as SOS
+  LOG <- "(.+\\._x).+"
+
+  idx <- grepl(LOG, vars)
+  var <- sub(LOG, "\\1", vars)
+  sosname <- unique(var[idx])
+  sapply(sosname, function(sos){
+    columns = which(var == sos)
+    list( name=sos
+        , columns=columns
+        , weights = rep(1, length(columns))
+    )
+  }, simplify=FALSE)
+}
 
 ### testing
 

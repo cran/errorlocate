@@ -6,13 +6,13 @@ LOGS <- c("log", "log1p", "log10", "log2")
 #'
 #' Check which rules are linear rules.
 #'
-#' @note \code{errorlocate} supports linear,
+#' @note `errorlocate` supports linear,
 #' categorical and conditional rules to be used in finding errors. Other rule types
 #' are ignored during error finding.
 #' @export
-#' @param x \code{\link{validator}} object containing data validation rules
+#' @param x [validator()] object containing data validation rules
 #' @param ... not used
-#' @return \code{logical} indicating which rules are (purely) linear.
+#' @return `logical` indicating which rules are (purely) linear.
  #' @family rule type
 is_linear <- function(x, ...){
   if (is.expression(x)){
@@ -37,8 +37,8 @@ lin_as_mip_rules <- function(x, ...){
 # check if a (sub) expression is linear
 is_lin_ <- function(expr, top=TRUE, ...){
   op <- op_to_s(expr)
-  l <- left(expr)
-  r <- right(expr)
+  l <- consume(left(expr))
+  r <- consume(right(expr))
 
   if (top){
     if (!(op %in% c("==", ">", ">=", "<=", "<"))){ return(FALSE) }
@@ -91,8 +91,8 @@ lin_mip_rule_ <- function(e, sign = 1, name, ...){
   }
 
   op <- op_to_s(e)
-  l <- left(e)
-  r <- right(e)
+  l <- consume(left(e))
+  r <- consume(right(e))
 
   if (op %in% c("==", ">", ">=", "<=", "<")){
     coef <- c(lin_mip_rule_(l, sign), lin_mip_rule_(r, -sign), .b=0) # makes sure that .b exists

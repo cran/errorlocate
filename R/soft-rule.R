@@ -60,9 +60,14 @@ expect_values <- function(values, weights, delta_names = NULL, ...){
 
   is_numeric <- vapply(values, is.numeric, TRUE)
   lin_values <- values[is_numeric]
+
+  # otherwise the problem become unstable...
+  is.na(lin_values) <- lin_values >= 1e7
+
   lin_is_na <- vapply(lin_values, is.na, TRUE)
 
-  lin_values[lin_is_na] <- -1
+  lin_values <- lin_values[!lin_is_na]
+
   lin_rules1 <- lapply(names(lin_values), function(n){
     a <- setNames(1, n)
     b <- lin_values[[n]]
@@ -76,9 +81,6 @@ expect_values <- function(values, weights, delta_names = NULL, ...){
       mip_rule(a, op = "==", b = b, rule = n, weight = Inf)
     }
   })
-
-  # set all NA values to 1 to create contradictory statement
-  lin_values[lin_is_na] <- 1
 
   lin_rules2 <- lapply(names(lin_values), function(n){
     a <- setNames(1, n)

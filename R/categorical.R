@@ -2,7 +2,7 @@ INFIX_CAT_NAME <- ":"
 
 # TODO maybe change the code below to directly generate mip_rules
 # determine if a rule is categorical
-is_cat_ <- function(expr, or=TRUE, ...){
+  is_cat_ <- function(expr, or=TRUE, ...){
   # this allows for logicals such as "if (A) B"
   if (is.symbol(expr)){
     return(TRUE)
@@ -95,7 +95,7 @@ cat_var_name <- function(x, infix=INFIX_CAT_NAME){
 #'
 #' Check if rules are categorical
 #'
-#' #' @note \code{errorlocate} supports linear,
+#' #' @note `errorlocate` supports linear,
 #' categorical and conditional rules to be used in finding errors. Other rule types
 #' are ignored during error finding.
 #' @export
