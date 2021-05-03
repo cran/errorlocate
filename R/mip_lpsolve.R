@@ -26,15 +26,13 @@ translate_mip_lp <- function( rules
   lpSolveAPI::name.lp(lps, "errorlocate")
   # TODO improve!
   lpSolveAPI::lp.control( lps,
-                          presolve = c(
-                              "rows"
-                            , "cols"
-                            #, "probefix"
-                          ),
+                          presolve="rows",
                           epsint = 1e-15,
                           epspivot = 1e-15,
-                          ...
+                          epsd = 1e-12
                         )
+  # overwrite options
+  lpSolveAPI::lp.control( lps, ...)
 
   dimnames(lps) <- dimnames(A)
 
@@ -87,7 +85,7 @@ translate_mip_lp <- function( rules
   }
 
   if (length(objective)){
-    obj <- objective[objective != 0]
+    obj <- objective[is.finite(objective) & objective > 0]
     columns <- match(names(obj), colnames(A))
 
     # this is due to NA variables that are not part of the problem any more...

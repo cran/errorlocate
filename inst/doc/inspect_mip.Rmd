@@ -24,37 +24,50 @@ library(errorlocate)
 
 ## Intro
 
-Errorlocate uses the linear, categorical and conditional rules from a rules set formulate with R package [`validate`](https://cran.r-project.org/package=validate), to create a Mixed Integer Problem.
+Errorlocate uses the linear, categorical and conditional rules from a rules set formulated with R package [`validate`](https://cran.r-project.org/package=validate), to create a Mixed Integer Problem.
 
-The details of the translation are hidden in `locate_errors`, since for most users they are not relevant. Often the number of errors found and the processing time are much more relevant parameters.
+For most users the details of the translation are not relevant and hidden in `locate_errors`.
+Often the number of errors found and the processing time are much more relevant parameters.
 
-In few cases, you may run into a problems with your error localization problem:
+In a few cases, you may run into a problems with your error localization problem:
 
 a)  The processing time of (some of the records) of `locate_errors` is high.
-b)  `locate_errors` missresolveded an obvious error.
+b)  `locate_errors` missed an obvious error.
 c)  `locate_errors` indicates that it did not find a valid solution (for some records) .
 
-Problem a. can be by splitting your dataset and use a `parallel` solution and problem b, can be due to that `error_locate` ignores non-linear rules, but these problems may also indicate problems with your rules set.
+Problem a. can be addressed by using the parallel argument of `locate_errors` (and `replace_errors`).
+Problem b can be due to that `error_locate` ignores non-linear rules, and therefore
+is not able to deduce the errors, because it only takes linear, categorical and 
+conditional rules into a account. 
 
-Problem with you rule set may be mitigated by using the `validatetools` package that can detect conflicting and redundant rules and has methods to simplify your rule set.
+There may also be problems with your rules set. Problems set may be mitigated 
+by using the [`validatetools`](https://cran.r-project.org/package=validate) 
+package that can detect conflicting and redundant rules and has methods to 
+simplify your rule set.
 
-If you want to dive deep into the mixed integer problem that is created by `error_locate` you can use the `inspect_mip` function.
+If you want to dive deep into the mixed integer problem that is created 
+by `error_locate` you can use the `inspect_mip` function.
 
 ## A bit of theory
 
-In the following sections an example is given of how linear, categorical and conditional rules are written as Mixed Integer Problems. First let's see how these rules in validator can be formally defined.
+In the following sections an example is given of how linear, categorical and 
+conditional rules are written as Mixed Integer Problems. First let's see 
+how these rules in validator can be formally defined.
 
 ## Formal description
 
 ### Rule $r_i(\mathbf{x})$
 
-Each translatable rule $r_i(\mathbf{x})$ can be written as a disjunction of atomic clauses: it is a function $r_i$ that operates on (some of) the values of record $\mathbf{x} = (x_1, \ldots, x_n)$ and is `TRUE` (valid) or `FALSE` (not valid)
+Each translatable rule $r_i(\mathbf{x})$ can be written as a disjunction of 
+atomic clauses $C_i^j(x)$: it is a function $r_i$ that operates on (some of) the values 
+of record $\mathbf{x} = (x_1, \ldots, x_n)$ and is `TRUE` (valid) or `FALSE` 
+(not valid)
 
 $$
 r_i(\mathbf{x}) = \bigvee_j C_i^j(\mathbf{x})
 $$
 
-with:
+with each atomic clause:
 
 $$
 C_i^j(\mathbf{x}) = \left\{
@@ -69,14 +82,24 @@ $$
 
 Each linear, categorical or conditional rule $r_i$ can be written in this form.
 
-### Example
+### Example 1
 
 ```{r}
-rules <- validator(has_income = if (income > 0) age >= 16)
+rules <- validator(example_1 = if (income > 0) age >= 16)
 rules$exprs()
 ```
 
 So the rule `if (income > 0) age >= 16` can be written as (`income <= 0` OR `age >=16`)
+
+### Example 2
+
+```{r}
+rules <- validator(example_2 = if (has_house == "yes") income >= 1000)
+rules$exprs()
+```
+
+So the rule `if (has_house == "yes") income >= 1000)` can be written as (`has_house != "yes"` OR `age >=1000`)
+
 
 ## Rule system:
 
@@ -111,7 +134,10 @@ $$
 
 ### Linear rules
 
-Most users will use the function `locate_errors` to find errors. The function `inspect_mip` works exactly same, except that it operates on just one record in stead of a whole `data.frame`. The result of `inspect_mip` is a mip object, that is not yet executed and can be inspected.
+Most users will use the function `locate_errors` to find errors. 
+The function `inspect_mip` works exactly same, except that it operates on 
+just one record in stead of a whole `data.frame`. The result of `inspect_mip` 
+is a mip object, that is not yet executed and can be inspected.
 
 ```{r, df_print = "kable"}
 rules <- validator( r1 = age >= 18
@@ -137,7 +163,8 @@ Lets inspect the first record
 mip <- inspect_mip(data, rules)
 ```
 
-The `mip` object contains the mip problem before it is executed. We can inspect the lp problem, prior to solving it with `lpSolveApi` with
+The `mip` object contains the mip problem before it is executed. 
+We can inspect the lp problem, prior to solving it with `lpSolveApi` with
 
 ```{r mip1, results='hide'}
 # inspect the lp problem (prior to solving it with lpsolveAPI)
@@ -148,12 +175,12 @@ print(lp)
 ```{r, ref.label="mip1", comment= " ", echo=FALSE}
 ```
 
-Validator rules `r1` and `r2` are encoded in two lines of the model. The values of the current record are encoded as soft contraints in `age_ub`, `age_lb`, `income_lb` and `income_ub`. These constraints try to fix the values of `age` at 12 and `income` at 2000, but can be violated, setting `.delta_age` or `.delta_income` to 1.
+Validator rules `r1` and `r2` are encoded in two lines of the model. The values of the current record are encoded as soft constraints in `age_ub`, `age_lb`, `income_lb` and `income_ub`. These constraints try to fix the values of `age` at 12 and `income` at 2000, but can be violated, setting `.delta_age` or `.delta_income` to 1.
 
 For large problems the lp problem can be written to disk for inspection
 
 ```{r, eval=FALSE}
-lpSolveAPI::write.lp(lp, "my_problem.lp")
+mip$write_lp("my_problem.lp")
 ```
 
 Once we execute the mip project, the lp solver is executed on the problem:
@@ -191,9 +218,11 @@ res$errors
 ```{r}
 res$values
 ```
-Note that the solver has found that setting `age` from 12 to 18 gives a valid solution. `.delta_age = 1` indicates that `age` contained an error.
+Note that the solver has found that setting `age` from 12 to 18 gives a valid 
+solution. `.delta_age = 1` indicates that `age` contained an error.
 
-The result object `res` also contains an `lp` object after optimization. This object can be further investigated using `lpSolveAPI` functions.
+The result object `res` also contains an `lp` object after optimization. This 
+object can be further investigated using `lpSolveAPI` functions.
 
 ```{r mip2, results="hide"}
 # lp problem after solving
@@ -203,11 +232,16 @@ res$lp
 ```{r, ref.label="mip2", comment=" ", echo=FALSE}
 ```
 
-Note that the lp problem has been simplified. For example the single variable constraints,the lp problem/object after solving shows that the solver has optimized some of the rules: it has moved rule `r1` and `r2` into the `Lower boundary` conditions. It also removed `age_lb` because that was superfluous with respect to the boundary conditions.
+Note that the lp problem has been simplified. For example the single 
+variable constraints,the lp problem/object after solving shows that the solver 
+has optimized some of the rules: it has moved rule `r1` and `r2` into the 
+`Lower boundary` conditions. It also removed `age_lb` because that was 
+superfluous with respect to the boundary conditions.
 
 ### Categorical rule
 
-In categorical rules, each category is coded in a separate column/mip variable: e.g. if we have a `working` variable, with two categories ("job", "retired"), the mip problem is encoded as follows:
+In categorical rules, each category is coded in a separate column/mip variable: 
+e.g. if we have a `working` variable, with two categories ("job", "retired"), the mip problem is encoded as follows:
 
 ```{r}
 rules <- validator( r1 = working %in% c("job","retired")                  )
@@ -273,10 +307,10 @@ mip <- inspect_mip(data, rules)
 ```
 
 `errorlocate` encodes this rule into multiple rules
-(as noted in the theoreteical section above), so rule `r1` is chopped into
+(as noted in the theoretical section above), so rule `r1` is chopped into
 1 rule + 2 sub rules: 
 
-`r1: if (income > 0) age >= 0`:
+`r1: if (income > 0) age >= 16`:
 
 - `r1._lin1: if (r1._lin1 == FALSE) income <= 0`
 

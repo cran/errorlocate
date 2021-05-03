@@ -1,3 +1,14 @@
+
+# errorlocate 0.9.9
+
+* Added support for Inf weights, thanks to Guido van den Heuvel.
+
+* Improved default setting of solver `epsd = 1e-12` provides better numerical
+stability.
+
+* Too aggressive presolve default for lpSolveAPI (c("rows", "cols")) (issue #34)
+, switching back to presolve="rows". Thanks to Sander Scholtus.
+
 # errorlocate 0.9.8
 
 * Added parallel processing options, resulting in speed and memory consumption

@@ -8,7 +8,11 @@ knitr::opts_chunk$set(
 library(errorlocate)
 
 ## -----------------------------------------------------------------------------
-rules <- validator(has_income = if (income > 0) age >= 16)
+rules <- validator(example_1 = if (income > 0) age >= 16)
+rules$exprs()
+
+## -----------------------------------------------------------------------------
+rules <- validator(example_2 = if (has_house == "yes") income >= 1000)
 rules$exprs()
 
 ## ---- df_print = "kable"------------------------------------------------------
@@ -38,7 +42,7 @@ lp <- mip$to_lp()
 print(lp)
 
 ## ---- eval=FALSE--------------------------------------------------------------
-#  lpSolveAPI::write.lp(lp, "my_problem.lp")
+#  mip$write_lp("my_problem.lp")
 
 ## -----------------------------------------------------------------------------
 res <- mip$execute()
