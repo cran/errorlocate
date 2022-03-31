@@ -26,6 +26,7 @@
     </style>
 
 
+
 <style type="text/css">
   code {
     white-space: pre;
@@ -149,7 +150,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li>Check if a record is valid (using supplied validation rules)</li>
 <li>If not valid then adjust the minimum number of values to make it valid.</li>
 </ul>
-<p><code>errorlocate</code> does this by translating this problem into a mixed integer problem (see other vignettes) and solving this mathematical problem.</p>
+<p><code>errorlocate</code> does this by translating this into a mixed integer problem (see <code>vignette(&quot;inspect_mip&quot;, package=&quot;errorlocate&quot;</code>) and solving it using <code>lpSolveAPI</code>.</p>
 </div>
 <div id="methods" class="section level2">
 <h2>Methods</h2>
@@ -161,7 +162,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(validate)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(errorlocate)</span></code></pre></div>
 <p>Let’s start with a simple example:</p>
-<p>We have a rule dat age cannot be negative:</p>
+<p>We have a rule that age cannot be negative:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>rules <span class="ot">&lt;-</span> <span class="fu">validator</span>(age <span class="sc">&gt;</span> <span class="dv">0</span>)</span></code></pre></div>
 <p>And we have the following data set</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;age, income</span></span>
@@ -256,7 +257,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <td align="right">1</td>
 <td align="left">FALSE</td>
 <td align="left">FALSE</td>
-<td align="left">!(income &gt; 0) | (age &gt; 16)</td>
+<td align="left">income &lt;= 0 | (age &gt; 16)</td>
 </tr>
 </tbody>
 </table>
@@ -307,7 +308,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <td align="right">2</td>
 <td align="left">FALSE</td>
 <td align="left">FALSE</td>
-<td align="left">!(income &gt; 0) | (age &gt; 16)</td>
+<td align="left">income &lt;= 0 | (age &gt; 16)</td>
 </tr>
 </tbody>
 </table>
@@ -344,7 +345,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <div id="weights" class="section level3">
 <h3>Weights</h3>
-<p><code>locate_errors</code> allows for supplying weigths for the variables. It is common that the quality of the observed variables differs. When we have more trust in <code>age</code> we can give it more weight so it choose income when it has to decide between the two (record 2):</p>
+<p><code>locate_errors</code> allows for supplying weigths for the variables. It is common that the quality of the observed variables differs. When we have more trust in <code>age</code> we can give it more weight so it chooses income when it has to decide between the two (record 2):</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>) <span class="co"># good practice, although not needed in this example</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>weight <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="at">age =</span> <span class="dv">2</span>, <span class="at">income =</span> <span class="dv">1</span>) </span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>le <span class="ot">&lt;-</span> <span class="fu">locate_errors</span>(d, rules, weight)</span>
@@ -354,19 +355,20 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [2,] FALSE   TRUE</span></span>
 <span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [3,] FALSE  FALSE</span></span>
 <span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [4,]    NA  FALSE</span></span></code></pre></div>
-<p>For weights there are three different options:</p>
+<p>Weights can be specified in different ways: (see also <code>errorlocate::expand_weights</code>):</p>
 <ul>
 <li>not specifying: all variables will have weight 1</li>
-<li>named vector: all records will have same set of weights</li>
-<li>named matrix, same dimension as the data: specify weights per record.</li>
+<li>named <code>vector</code>: all records will have same set of weights. Unspeficied columns will have weight 1.</li>
+<li>named <code>matrix</code> or <code>data.frame</code>, same dimension as the data: specify weights per record.</li>
+<li>Use <code>Inf</code> weights to fixate a variable, so it won’t be changed.</li>
 </ul>
 </div>
 <div id="performance-parallelisation" class="section level3">
 <h3>Performance / Parallelisation</h3>
-<p><code>locate_errors</code> solves a mixed integer problem. When the number of interactions between validation rules is large, finding an optimal solution can be become computationally intensive. Both <code>locate_errors</code> as well as <code>replace_errors</code> have a parallization option: <code>Ncpus</code> making use of multiple processors. The <code>$duration</code> (s) property of each solution indicates the time spent to find a solution for each record. This can be restricted using the argument <code>timeout</code> (s).</p>
+<p><code>locate_errors</code> solves a mixed integer problem. When the number of interactions between validation rules is large, finding an optimal solution can become computationally intensive. Both <code>locate_errors</code> as well as <code>replace_errors</code> have a parallization option: <code>Ncpus</code> making use of multiple processors. The <code>$duration</code> (s) property of each solution indicates the time spent to find a solution for each record. This can be restricted using the argument <code>timeout</code> (s).</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># duration is in seconds. </span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>le<span class="sc">$</span>duration</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 0.003178596 0.002701521 0.000000000 0.002396584</span></span></code></pre></div>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 0.0009040833 0.0006849766 0.0000000000 0.0005989075</span></span></code></pre></div>
 </div>
 </div>
 

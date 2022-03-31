@@ -4,7 +4,7 @@
 \alias{locate_errors}
 \alias{locate_errors,data.frame,validator-method}
 \alias{locate_errors,data.frame,ErrorLocalizer-method}
-\title{Locate errors in data}
+\title{Find errors in data}
 \usage{
 locate_errors(
   data,
@@ -51,7 +51,8 @@ possible errors.}
 
 \item{timeout}{maximum number of seconds that the localizer should use per record.}
 
-\item{weight}{\code{numeric} optional weight vector to be used in the error localization.}
+\item{weight}{\code{numeric} optional weight specification to be used in the
+error localization (see \code{\link[=expand_weights]{expand_weights()}}).}
 
 \item{ref}{\code{data.frame} optional reference data to be used in the rules checking}
 }
@@ -59,13 +60,17 @@ possible errors.}
 \code{\link[=errorlocation-class]{errorlocation-class()}} object describing the errors found.
 }
 \description{
-Locate erroneuous fields in rows of data using validation rules or a specific
-errorlocalizer object. This method returns found errors, according to the specified
-method \code{x}.
+Find out which fields in a data.frame are "faulty" using validation rules
+This method returns found errors, according to the specified method \code{x}.
 Use method \code{\link[=replace_errors]{replace_errors()}}, to automatically remove these errors.
+`
 }
 \details{
-\code{locate_errors} uses lpSolveAPI to formulate and solve a mixed integer problem.
+Use an \code{Inf} \code{weight} specification to fixate variables that can not be changed.
+See \code{\link[=expand_weights]{expand_weights()}} for more details.
+
+\code{locate_errors} uses lpSolveAPI to formulate and solves a mixed integer problem.
+For details see the vignettes.
 This solver has many options:  \link[lpSolveAPI:lp.control.options]{lpSolveAPI::lp.control.options}. Noteworthy
 options to be used are:
 \itemize{
@@ -90,38 +95,68 @@ rules <- validator( profit + cost == turnover
                   , cost >= 0.6 * turnover # cost should be at least 60\% of turnover
                   , turnover >= 0 # can not be negative.
                   )
-data <- data.frame(profit=755, cost=125, turnover=200)
+data <- data.frame( profit   = 755
+                  , cost     = 125
+                  , turnover = 200
+                  )
 le <- locate_errors(data, rules)
 
 print(le)
 summary(le)
 
-v_categorical <- validator( A \%in\% c("a1", "a2")
-                          , B \%in\% c("b1", "b2")
-                          , if (A == "a1") B == "b1"
+v_categorical <- validator( branch \%in\% c("government", "industry")
+                          , tax \%in\% c("none", "VAT")
+                          , if (tax == "VAT") branch == "industry"
 )
 
-data <- data.frame(A = c("a1", "a2"), B = c("b2", "b2"))
+data <- read.csv(text=
+"   branch, tax
+government, VAT
+industry  , VAT
+", strip.white = TRUE)
 locate_errors(data, v_categorical)$errors
 
-v_logical <- validator( A \%in\% c(TRUE, FALSE)
-                      , B \%in\% c(TRUE, FALSE)
-                      ,  if (A == TRUE) B == TRUE
+v_logical <- validator( citizen \%in\% c(TRUE, FALSE)
+                      , voted \%in\% c(TRUE, FALSE)
+                      ,  if (voted == TRUE) citizen == TRUE
                       )
 
-data <- data.frame(A = TRUE, B = FALSE)
+data <- data.frame(voted = TRUE, citizen = FALSE)
 locate_errors(data, v_logical, weight=c(2,1))$errors
 
 # try a condinational rule
-v <- validator( married \%in\% c(TRUE, FALSE), if (married==TRUE) age >= 17 )
+v <- validator( married \%in\% c(TRUE, FALSE)
+              , if (married==TRUE) age >= 17
+              )
 data <- data.frame( married = TRUE, age = 16)
 locate_errors(data, v, weight=c(married=1, age=2))$errors
 
+
+# different weights per row
+data <- read.csv(text=
+"married, age
+    TRUE,  16
+    TRUE,  14
+", strip.white = TRUE)
+
+weight <- read.csv(text=
+"married, age
+       1,   2
+       2,   1
+", strip.white = TRUE)
+
+locate_errors(data, v, weight = weight)$errors
+
+# fixate / exclude a variable from error localiziation
+# using an Inf weight
+weight <- c(age = Inf)
+locate_errors(data, v, weight = weight)$errors
 }
 \seealso{
 Other error finding: 
 \code{\link{errorlocation-class}},
 \code{\link{errors_removed}()},
+\code{\link{expand_weights}()},
 \code{\link{replace_errors}()}
 }
 \concept{error finding}

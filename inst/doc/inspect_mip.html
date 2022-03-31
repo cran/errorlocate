@@ -26,6 +26,7 @@
     </style>
 
 
+
 <style type="text/css">
   code {
     white-space: pre;
@@ -141,8 +142,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 
 
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(errorlocate)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Loading required package: validate</span></span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(errorlocate)</span></code></pre></div>
 <div id="intro" class="section level2">
 <h2>Intro</h2>
 <p>Errorlocate uses the linear, categorical and conditional rules from a rules set formulated with R package <a href="https://cran.r-project.org/package=validate"><code>validate</code></a>, to create a Mixed Integer Problem.</p>
@@ -187,7 +187,7 @@ C_i^j(\mathbf{x}) = \left\{
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>rules <span class="ot">&lt;-</span> <span class="fu">validator</span>(<span class="at">example_1 =</span> <span class="cf">if</span> (income <span class="sc">&gt;</span> <span class="dv">0</span>) age <span class="sc">&gt;=</span> <span class="dv">16</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>rules<span class="sc">$</span><span class="fu">exprs</span>()</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $example_1</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; !(income &gt; 0) | (age &gt;= 16)</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; income &lt;= 0 | (age - 16 &gt;= -1e-08)</span></span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; attr(,&quot;reference&quot;)</span></span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; example_1 </span></span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;         1</span></span></code></pre></div>
@@ -198,7 +198,7 @@ C_i^j(\mathbf{x}) = \left\{
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>rules <span class="ot">&lt;-</span> <span class="fu">validator</span>(<span class="at">example_2 =</span> <span class="cf">if</span> (has_house <span class="sc">==</span> <span class="st">&quot;yes&quot;</span>) income <span class="sc">&gt;=</span> <span class="dv">1000</span>)</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>rules<span class="sc">$</span><span class="fu">exprs</span>()</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; $example_2</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; !(has_house == &quot;yes&quot;) | (income &gt;= 1000)</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; has_house != &quot;yes&quot; | (income - 1000 &gt;= -1e-08)</span></span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; attr(,&quot;reference&quot;)</span></span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; example_2 </span></span>
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;         1</span></span></code></pre></div>
@@ -287,7 +287,7 @@ f(\mathbf{x}) = \sum_{i=1}^N w_i \delta_i
 <td align="right">0</td>
 <td align="left">FALSE</td>
 <td align="left">FALSE</td>
-<td align="left">(age - 18) &gt;= -1e-08</td>
+<td align="left">age - 18 &gt;= -1e-08</td>
 </tr>
 <tr class="even">
 <td align="left">r2</td>
@@ -297,7 +297,7 @@ f(\mathbf{x}) = \sum_{i=1}^N w_i \delta_i
 <td align="right">0</td>
 <td align="left">FALSE</td>
 <td align="left">FALSE</td>
-<td align="left">(income - 0) &gt;= -1e-08</td>
+<td align="left">income - 0 &gt;= -1e-08</td>
 </tr>
 </tbody>
 </table>
@@ -315,7 +315,7 @@ f(\mathbf{x}) = \sum_{i=1}^N w_i \delta_i
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(lp)</span></code></pre></div>
 <pre><code>  Model name: errorlocate
                         age          income      .delta_age   .delta_income           
-  Minimize                0               0  1.346459353576  1.167139223078           
+  Minimize                0               0   1.10298728745  1.088278376264           
   r1                     -1               0               0               0  &lt;=    -18
   r2                      0              -1               0               0  &lt;=      0
   age_ub                  1               0          -1e+07               0  &lt;=     12
@@ -354,7 +354,7 @@ f(\mathbf{x}) = \sum_{i=1}^N w_i \delta_i
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>res<span class="sc">$</span>lp</span></code></pre></div>
 <pre><code>  Model name: errorlocate
                         age          income      .delta_age   .delta_income           
-  Minimize                0               0  1.346459353576  1.167139223078           
+  Minimize                0               0   1.10298728745  1.088278376264           
   age_ub                  1               0          -1e+07               0  &lt;=     12
   income_ub               0               1               0          -1e+07  &lt;=   2000
   income_lb               0              -1               0          -1e+07  &lt;=  -2000
@@ -385,7 +385,7 @@ f(\mathbf{x}) = \sum_{i=1}^N w_i \delta_i
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>mip<span class="sc">$</span><span class="fu">to_lp</span>()</span></code></pre></div>
 <pre><code>  Model name: errorlocate
                   working:?      working:job  working:retired   .delta_working      
-  Minimize                0                0                0    1.47541783657      
+  Minimize                0                0                0   1.384103718214      
   r1                      0                1                1                0  =  1
   working                 1                0                0                1  =  1
   Kind                  SOS              SOS              SOS              Std      
@@ -419,7 +419,7 @@ f(\mathbf{x}) = \sum_{i=1}^N w_i \delta_i
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>mip<span class="sc">$</span><span class="fu">to_lp</span>()</span></code></pre></div>
 <pre><code>  Model name: errorlocate
                      adult           voted    .delta_adult    .delta_voted       
-  Minimize               0               0  1.075791650452  1.446975832222       
+  Minimize               0               0  1.495953047416  1.358809254132       
   r1                    -1               1               0               0  &lt;=  0
   voted                  0               1               0               1   =  1
   adult                 -1               0               1               0   =  0
@@ -429,7 +429,7 @@ f(\mathbf{x}) = \sum_{i=1}^N w_i \delta_i
   Lower                  0               0               0               0</code></pre>
 <div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>mip<span class="sc">$</span><span class="fu">execute</span>()<span class="sc">$</span>values</span>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;        adult        voted .delta_adult .delta_voted </span></span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;            1            1            1            0</span></span></code></pre></div>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;            0            0            0            1</span></span></code></pre></div>
 </div>
 </div>
 <div id="conditional-rule" class="section level3">
@@ -478,7 +478,7 @@ f(\mathbf{x}) = \sum_{i=1}^N w_i \delta_i
 <div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>mip<span class="sc">$</span><span class="fu">to_lp</span>()</span></code></pre></div>
 <pre><code>  Model name: errorlocate
                         age          income      .delta_age   .delta_income        r1._lin1        r1._lin2           
-  Minimize                0               0  1.037647796562  1.298981007072               0               0           
+  Minimize                0               0   1.38872261066  1.190017589718               0               0           
   r1                      0               0               0               0               1               1  &lt;=      1
   r1._lin1                0               1               0               0          -1e+07               0  &lt;=      0
   r1._lin2               -1               0               0               0               0          -1e+07  &lt;=    -16
@@ -492,9 +492,9 @@ f(\mathbf{x}) = \sum_{i=1}^N w_i \delta_i
   Lower                -Inf            -Inf               0               0               0               0</code></pre>
 <div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>mip<span class="sc">$</span><span class="fu">execute</span>()<span class="sc">$</span>values</span>
 <span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;           age        income    .delta_age .delta_income      r1._lin1 </span></span>
-<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;            16          2000             1             0             1 </span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;            12             0             0             1             0 </span></span>
 <span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;      r1._lin2 </span></span>
-<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;             0</span></span></code></pre></div>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;             1</span></span></code></pre></div>
 </div>
 <div id="alltogether" class="section level3">
 <h3>Alltogether:</h3>

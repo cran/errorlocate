@@ -1,11 +1,15 @@
-#' Locate errors in data
+#' Find errors in data
 #'
-#' Locate erroneuous fields in rows of data using validation rules or a specific
-#' errorlocalizer object. This method returns found errors, according to the specified
-#' method `x`.
+#' Find out which fields in a data.frame are "faulty" using validation rules
+#' This method returns found errors, according to the specified method `x`.
 #' Use method [replace_errors()], to automatically remove these errors.
+#' `
 #'
-#' `locate_errors` uses lpSolveAPI to formulate and solve a mixed integer problem.
+#' Use an `Inf` `weight` specification to fixate variables that can not be changed.
+#' See [expand_weights()] for more details.
+#'
+#' `locate_errors` uses lpSolveAPI to formulate and solves a mixed integer problem.
+#' For details see the vignettes.
 #' This solver has many options:  [lpSolveAPI::lp.control.options]. Noteworthy
 #' options to be used are:
 #'
@@ -29,7 +33,8 @@
 #' @param x validation rules or errorlocalizer object to be used for finding
 #' possible errors.
 #' @param ref `data.frame` optional reference data to be used in the rules checking
-#' @param weight `numeric` optional weight vector to be used in the error localization.
+#' @param weight `numeric` optional weight specification to be used in the
+#' error localization (see [expand_weights()]).
 #' @param ... optional parameters that are passed to [lpSolveAPI::lp.control()] (see details)
 #' @param cl optional parallel / cluster.
 #' @param Ncpus number of nodes to use. See details
