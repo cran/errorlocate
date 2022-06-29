@@ -14,7 +14,19 @@
 
 <title>Inspecting the errorlocate Mixed Integer Program</title>
 
-<script src="data:application/javascript;base64,Ly8gUGFuZG9jIDIuOSBhZGRzIGF0dHJpYnV0ZXMgb24gYm90aCBoZWFkZXIgYW5kIGRpdi4gV2UgcmVtb3ZlIHRoZSBmb3JtZXIgKHRvCi8vIGJlIGNvbXBhdGlibGUgd2l0aCB0aGUgYmVoYXZpb3Igb2YgUGFuZG9jIDwgMi44KS4KZG9jdW1lbnQuYWRkRXZlbnRMaXN0ZW5lcignRE9NQ29udGVudExvYWRlZCcsIGZ1bmN0aW9uKGUpIHsKICB2YXIgaHMgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yQWxsKCJkaXYuc2VjdGlvbltjbGFzcyo9J2xldmVsJ10gPiA6Zmlyc3QtY2hpbGQiKTsKICB2YXIgaSwgaCwgYTsKICBmb3IgKGkgPSAwOyBpIDwgaHMubGVuZ3RoOyBpKyspIHsKICAgIGggPSBoc1tpXTsKICAgIGlmICghL15oWzEtNl0kL2kudGVzdChoLnRhZ05hbWUpKSBjb250aW51ZTsgIC8vIGl0IHNob3VsZCBiZSBhIGhlYWRlciBoMS1oNgogICAgYSA9IGguYXR0cmlidXRlczsKICAgIHdoaWxlIChhLmxlbmd0aCA+IDApIGgucmVtb3ZlQXR0cmlidXRlKGFbMF0ubmFtZSk7CiAgfQp9KTsK"></script>
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
 
 <style type="text/css">
   code{white-space: pre-wrap;}
@@ -126,7 +138,187 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 
 
-<link rel="stylesheet" href="data:text/css,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" type="text/css" />
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
 
 
 
@@ -138,34 +330,58 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 
 
-<h1 class="title toc-ignore">Inspecting the errorlocate Mixed Integer Program</h1>
+<h1 class="title toc-ignore">Inspecting the errorlocate Mixed Integer
+Program</h1>
 
 
 
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(errorlocate)</span></code></pre></div>
 <div id="intro" class="section level2">
 <h2>Intro</h2>
-<p>Errorlocate uses the linear, categorical and conditional rules from a rules set formulated with R package <a href="https://cran.r-project.org/package=validate"><code>validate</code></a>, to create a Mixed Integer Problem.</p>
-<p>For most users the details of the translation are not relevant and hidden in <code>locate_errors</code>. Often the number of errors found and the processing time are much more relevant parameters.</p>
-<p>In a few cases, you may run into a problems with your error localization problem:</p>
+<p>Errorlocate uses the linear, categorical and conditional rules from a
+rules set formulated with R package <a href="https://cran.r-project.org/package=validate"><code>validate</code></a>,
+to create a Mixed Integer Problem.</p>
+<p>For most users the details of the translation are not relevant and
+hidden in <code>locate_errors</code>. Often the number of errors found
+and the processing time are much more relevant parameters.</p>
+<p>In a few cases, you may run into a problems with your error
+localization problem:</p>
 <ol style="list-style-type: lower-alpha">
-<li>The processing time of (some of the records) of <code>locate_errors</code> is high.</li>
+<li>The processing time of (some of the records) of
+<code>locate_errors</code> is high.</li>
 <li><code>locate_errors</code> missed an obvious error.</li>
-<li><code>locate_errors</code> indicates that it did not find a valid solution (for some records) .</li>
+<li><code>locate_errors</code> indicates that it did not find a valid
+solution (for some records) .</li>
 </ol>
-<p>Problem a. can be addressed by using the parallel argument of <code>locate_errors</code> (and <code>replace_errors</code>). Problem b can be due to that <code>error_locate</code> ignores non-linear rules, and therefore is not able to deduce the errors, because it only takes linear, categorical and conditional rules into a account.</p>
-<p>There may also be problems with your rules set. Problems set may be mitigated by using the <a href="https://cran.r-project.org/package=validate"><code>validatetools</code></a> package that can detect conflicting and redundant rules and has methods to simplify your rule set.</p>
-<p>If you want to dive deep into the mixed integer problem that is created by <code>error_locate</code> you can use the <code>inspect_mip</code> function.</p>
+<p>Problem a. can be addressed by using the parallel argument of
+<code>locate_errors</code> (and <code>replace_errors</code>). Problem b
+can be due to that <code>error_locate</code> ignores non-linear rules,
+and therefore is not able to deduce the errors, because it only takes
+linear, categorical and conditional rules into a account.</p>
+<p>There may also be problems with your rules set. Problems set may be
+mitigated by using the <a href="https://cran.r-project.org/package=validate"><code>validatetools</code></a>
+package that can detect conflicting and redundant rules and has methods
+to simplify your rule set.</p>
+<p>If you want to dive deep into the mixed integer problem that is
+created by <code>error_locate</code> you can use the
+<code>inspect_mip</code> function.</p>
 </div>
 <div id="a-bit-of-theory" class="section level2">
 <h2>A bit of theory</h2>
-<p>In the following sections an example is given of how linear, categorical and conditional rules are written as Mixed Integer Problems. First let’s see how these rules in validator can be formally defined.</p>
+<p>In the following sections an example is given of how linear,
+categorical and conditional rules are written as Mixed Integer Problems.
+First let’s see how these rules in validator can be formally
+defined.</p>
 </div>
 <div id="formal-description" class="section level2">
 <h2>Formal description</h2>
 <div id="rule-r_imathbfx" class="section level3">
 <h3>Rule <span class="math inline">\(r_i(\mathbf{x})\)</span></h3>
-<p>Each translatable rule <span class="math inline">\(r_i(\mathbf{x})\)</span> can be written as a disjunction of atomic clauses <span class="math inline">\(C_i^j(x)\)</span>: it is a function <span class="math inline">\(r_i\)</span> that operates on (some of) the values of record <span class="math inline">\(\mathbf{x} = (x_1, \ldots, x_n)\)</span> and is <code>TRUE</code> (valid) or <code>FALSE</code> (not valid)</p>
+<p>Each translatable rule <span class="math inline">\(r_i(\mathbf{x})\)</span> can be written as a
+disjunction of atomic clauses <span class="math inline">\(C_i^j(x)\)</span>: it is a function <span class="math inline">\(r_i\)</span> that operates on (some of) the values
+of record <span class="math inline">\(\mathbf{x} = (x_1, \ldots,
+x_n)\)</span> and is <code>TRUE</code> (valid) or <code>FALSE</code>
+(not valid)</p>
 <p><span class="math display">\[
 r_i(\mathbf{x}) = \bigvee_j C_i^j(\mathbf{x})
 \]</span></p>
@@ -173,7 +389,7 @@ r_i(\mathbf{x}) = \bigvee_j C_i^j(\mathbf{x})
 <p><span class="math display">\[
 C_i^j(\mathbf{x}) = \left\{
   \begin{array}{l}
- \mathbf{a}^T\mathbf{x} \leq b \\
+\mathbf{a}^T\mathbf{x} \leq b \\
   \mathbf{a}^T\mathbf{x} = b \\
   x_j \in F_{ij}  \textrm{with } F_{ij} \subseteq D_j \\
   x_j \not\in F_{ij} \textrm{with } F_{ij} \subseteq D_j \\
@@ -191,7 +407,8 @@ C_i^j(\mathbf{x}) = \left\{
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; attr(,&quot;reference&quot;)</span></span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; example_1 </span></span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;         1</span></span></code></pre></div>
-<p>So the rule <code>if (income &gt; 0) age &gt;= 16</code> can be written as (<code>income &lt;= 0</code> OR <code>age &gt;=16</code>)</p>
+<p>So the rule <code>if (income &gt; 0) age &gt;= 16</code> can be
+written as (<code>income &lt;= 0</code> OR <code>age &gt;=16</code>)</p>
 </div>
 <div id="example-2" class="section level3">
 <h3>Example 2</h3>
@@ -202,7 +419,9 @@ C_i^j(\mathbf{x}) = \left\{
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; attr(,&quot;reference&quot;)</span></span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; example_2 </span></span>
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;         1</span></span></code></pre></div>
-<p>So the rule <code>if (has_house == &quot;yes&quot;) income &gt;= 1000)</code> can be written as (<code>has_house != &quot;yes&quot;</code> OR <code>age &gt;=1000</code>)</p>
+<p>So the rule <code>if (has_house == &quot;yes&quot;) income &gt;= 1000)</code>
+can be written as (<code>has_house != &quot;yes&quot;</code> OR
+<code>age &gt;=1000</code>)</p>
 </div>
 </div>
 <div id="rule-system" class="section level2">
@@ -210,25 +429,34 @@ C_i^j(\mathbf{x}) = \left\{
 <p>The rules form a system <span class="math inline">\(R(\mathbf{x})\)</span>:</p>
 <p><span class="math display">\[
 R(\mathbf{x}) = \bigwedge_i r_i
-\]</span> which means that all rules <span class="math inline">\(r_i\)</span> must be valid. If <span class="math inline">\(R(\mathbf{x})\)</span> is true for record <span class="math inline">\(\mathbf{x}\)</span>, then the record is valid, otherwise one (or more) of the rules is violated.</p>
+\]</span> which means that all rules <span class="math inline">\(r_i\)</span> must be valid. If <span class="math inline">\(R(\mathbf{x})\)</span> is true for record <span class="math inline">\(\mathbf{x}\)</span>, then the record is valid,
+otherwise one (or more) of the rules is violated.</p>
 </div>
 <div id="mixed-integer-programming-to-fh" class="section level2">
 <h2>Mixed Integer Programming to FH</h2>
-<p>Each rule set <span class="math inline">\(R(\mathbf{x})\)</span> can be translated into a mip problem and solved.</p>
+<p>Each rule set <span class="math inline">\(R(\mathbf{x})\)</span> can
+be translated into a mip problem and solved.</p>
 <p><span class="math display">\[
 \begin{array}{r}
   \textrm{Minimize } f(\mathbf{x}) = 0; \\
   \textrm{s.t. }\mathbf{Rx} \leq \mathbf{d} \\
 \end{array}
-\]</span> - <span class="math inline">\(f(\mathbf{x})\)</span> is the (weighted) number of changed variable: <span class="math inline">\(\delta_i \in {0,1}\)</span></p>
+\]</span> - <span class="math inline">\(f(\mathbf{x})\)</span> is the
+(weighted) number of changed variable: <span class="math inline">\(\delta_i \in {0,1}\)</span></p>
 <p><span class="math display">\[
 f(\mathbf{x}) = \sum_{i=1}^N w_i \delta_i
 \]</span></p>
 <ul>
-<li><p><span class="math inline">\(\mathbf{R}\)</span> contains rules:</p>
+<li><p><span class="math inline">\(\mathbf{R}\)</span> contains
+rules:</p>
 <ul>
-<li><p><span class="math inline">\(\mathbf{R}_H(\mathbf{x}) \leq \mathbf{d}_H\)</span> that were specified with <code>validate</code>/<code>validator</code></p></li>
-<li><p><span class="math inline">\(\mathbf{R}_0(\mathbf{x}, \mathbf{\delta}) \leq \mathbf{d}_0\)</span> : soft constraints that try fix the current record of <span class="math inline">\(\mathbf{x}\)</span> to the observed values.</p></li>
+<li><p><span class="math inline">\(\mathbf{R}_H(\mathbf{x}) \leq
+\mathbf{d}_H\)</span> that were specified with
+<code>validate</code>/<code>validator</code></p></li>
+<li><p><span class="math inline">\(\mathbf{R}_0(\mathbf{x},
+\mathbf{\delta}) \leq \mathbf{d}_0\)</span> : soft constraints that try
+fix the current record of <span class="math inline">\(\mathbf{x}\)</span> to the observed
+values.</p></li>
 </ul></li>
 </ul>
 </div>
@@ -236,7 +464,11 @@ f(\mathbf{x}) = \sum_{i=1}^N w_i \delta_i
 <h2>Enter <code>inspect_mip</code>:</h2>
 <div id="linear-rules" class="section level3">
 <h3>Linear rules</h3>
-<p>Most users will use the function <code>locate_errors</code> to find errors. The function <code>inspect_mip</code> works exactly same, except that it operates on just one record in stead of a whole <code>data.frame</code>. The result of <code>inspect_mip</code> is a mip object, that is not yet executed and can be inspected.</p>
+<p>Most users will use the function <code>locate_errors</code> to find
+errors. The function <code>inspect_mip</code> works exactly same, except
+that it operates on just one record in stead of a whole
+<code>data.frame</code>. The result of <code>inspect_mip</code> is a mip
+object, that is not yet executed and can be inspected.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>rules <span class="ot">&lt;-</span> <span class="fu">validator</span>( <span class="at">r1 =</span> age <span class="sc">&gt;=</span> <span class="dv">18</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>                  , <span class="at">r2 =</span> income <span class="sc">&gt;=</span> <span class="dv">0</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>                  )</span>
@@ -309,7 +541,9 @@ f(\mathbf{x}) = \sum_{i=1}^N w_i \delta_i
 <p>Lets inspect the first record</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>mip <span class="ot">&lt;-</span> <span class="fu">inspect_mip</span>(data, rules)</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning: Taking record 1, ignoring rest of the records...</span></span></code></pre></div>
-<p>The <code>mip</code> object contains the mip problem before it is executed. We can inspect the lp problem, prior to solving it with <code>lpSolveApi</code> with</p>
+<p>The <code>mip</code> object contains the mip problem before it is
+executed. We can inspect the lp problem, prior to solving it with
+<code>lpSolveApi</code> with</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># inspect the lp problem (prior to solving it with lpsolveAPI)</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>lp <span class="ot">&lt;-</span> mip<span class="sc">$</span><span class="fu">to_lp</span>()</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(lp)</span></code></pre></div>
@@ -326,30 +560,46 @@ f(\mathbf{x}) = \sum_{i=1}^N w_i \delta_i
   Type                 Real            Real             Int             Int           
   Upper                 Inf             Inf               1               1           
   Lower                -Inf            -Inf               0               0</code></pre>
-<p>Validator rules <code>r1</code> and <code>r2</code> are encoded in two lines of the model. The values of the current record are encoded as soft constraints in <code>age_ub</code>, <code>age_lb</code>, <code>income_lb</code> and <code>income_ub</code>. These constraints try to fix the values of <code>age</code> at 12 and <code>income</code> at 2000, but can be violated, setting <code>.delta_age</code> or <code>.delta_income</code> to 1.</p>
-<p>For large problems the lp problem can be written to disk for inspection</p>
+<p>Validator rules <code>r1</code> and <code>r2</code> are encoded in
+two lines of the model. The values of the current record are encoded as
+soft constraints in <code>age_ub</code>, <code>age_lb</code>,
+<code>income_lb</code> and <code>income_ub</code>. These constraints try
+to fix the values of <code>age</code> at 12 and <code>income</code> at
+2000, but can be violated, setting <code>.delta_age</code> or
+<code>.delta_income</code> to 1.</p>
+<p>For large problems the lp problem can be written to disk for
+inspection</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>mip<span class="sc">$</span><span class="fu">write_lp</span>(<span class="st">&quot;my_problem.lp&quot;</span>)</span></code></pre></div>
-<p>Once we execute the mip project, the lp solver is executed on the problem:</p>
+<p>Once we execute the mip project, the lp solver is executed on the
+problem:</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> mip<span class="sc">$</span><span class="fu">execute</span>()</span></code></pre></div>
-<p>Extra arguments are passed through to <code>lpSolveAPI</code>. The result object contains several properties:</p>
+<p>Extra arguments are passed through to <code>lpSolveAPI</code>. The
+result object contains several properties:</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(res)</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;s&quot;        &quot;solution&quot; &quot;values&quot;   &quot;lp&quot;       &quot;adapt&quot;    &quot;errors&quot;</span></span></code></pre></div>
 <p><code>res$solution</code> indicates of a solution was found</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>res<span class="sc">$</span>solution</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
-<p><code>res$s</code> indicates the <code>lpSolveAPI</code> status, what kind of solution was found.</p>
+<p><code>res$s</code> indicates the <code>lpSolveAPI</code> status, what
+kind of solution was found.</p>
 <div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>res<span class="sc">$</span>s</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 0</span></span></code></pre></div>
-<p><code>res$errors</code> indicates which fields/values are deemed erroneous:</p>
+<p><code>res$errors</code> indicates which fields/values are deemed
+erroneous:</p>
 <div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>res<span class="sc">$</span>errors</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    age income </span></span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   TRUE  FALSE</span></span></code></pre></div>
-<p><code>res$values</code> contains the values for the valid solution that has been found by the lpsolver:</p>
+<p><code>res$values</code> contains the values for the valid solution
+that has been found by the lpsolver:</p>
 <div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>res<span class="sc">$</span>values</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;           age        income    .delta_age .delta_income </span></span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;            18          2000             1             0</span></span></code></pre></div>
-<p>Note that the solver has found that setting <code>age</code> from 12 to 18 gives a valid solution. <code>.delta_age = 1</code> indicates that <code>age</code> contained an error.</p>
-<p>The result object <code>res</code> also contains an <code>lp</code> object after optimization. This object can be further investigated using <code>lpSolveAPI</code> functions.</p>
+<p>Note that the solver has found that setting <code>age</code> from 12
+to 18 gives a valid solution. <code>.delta_age = 1</code> indicates that
+<code>age</code> contained an error.</p>
+<p>The result object <code>res</code> also contains an <code>lp</code>
+object after optimization. This object can be further investigated using
+<code>lpSolveAPI</code> functions.</p>
 <div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># lp problem after solving</span></span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>res<span class="sc">$</span>lp</span></code></pre></div>
 <pre><code>  Model name: errorlocate
@@ -362,11 +612,19 @@ f(\mathbf{x}) = \sum_{i=1}^N w_i \delta_i
   Type                 Real            Real             Int             Int           
   Upper                 Inf             Inf               1               1           
   Lower                  18               0               0               0</code></pre>
-<p>Note that the lp problem has been simplified. For example the single variable constraints,the lp problem/object after solving shows that the solver has optimized some of the rules: it has moved rule <code>r1</code> and <code>r2</code> into the <code>Lower boundary</code> conditions. It also removed <code>age_lb</code> because that was superfluous with respect to the boundary conditions.</p>
+<p>Note that the lp problem has been simplified. For example the single
+variable constraints,the lp problem/object after solving shows that the
+solver has optimized some of the rules: it has moved rule
+<code>r1</code> and <code>r2</code> into the <code>Lower boundary</code>
+conditions. It also removed <code>age_lb</code> because that was
+superfluous with respect to the boundary conditions.</p>
 </div>
 <div id="categorical-rule" class="section level3">
 <h3>Categorical rule</h3>
-<p>In categorical rules, each category is coded in a separate column/mip variable: e.g. if we have a <code>working</code> variable, with two categories (“job,” “retired”), the mip problem is encoded as follows:</p>
+<p>In categorical rules, each category is coded in a separate column/mip
+variable: e.g. if we have a <code>working</code> variable, with two
+categories (“job”, “retired”), the mip problem is encoded as
+follows:</p>
 <div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>rules <span class="ot">&lt;-</span> <span class="fu">validator</span>( <span class="at">r1 =</span> working <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;job&quot;</span>,<span class="st">&quot;retired&quot;</span>)                  )</span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">working=</span><span class="st">&quot;?&quot;</span>)</span></code></pre></div>
 <table>
@@ -392,13 +650,17 @@ f(\mathbf{x}) = \sum_{i=1}^N w_i \delta_i
   Type                  Int              Int              Int              Int      
   Upper                   1                1                1                1      
   Lower                   0                0                0                0</code></pre>
-<p>Row <code>r1</code> indicates that either <code>working:job</code> or <code>working:retired</code> must be true. The <code>Kind</code> row (<code>SOS</code>) indicates that these variables share the same switch, only one of them can be set.</p>
+<p>Row <code>r1</code> indicates that either <code>working:job</code> or
+<code>working:retired</code> must be true. The <code>Kind</code> row
+(<code>SOS</code>) indicates that these variables share the same switch,
+only one of them can be set.</p>
 <div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>mip<span class="sc">$</span><span class="fu">execute</span>()<span class="sc">$</span>values</span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       working:?     working:job working:retired  .delta_working </span></span>
 <span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;               0               1               0               1</span></span></code></pre></div>
 <div id="multiple-categories" class="section level4">
 <h4>Multiple categories:</h4>
-<p>With categorical variables it is also possible to specify <code>if-then</code> rules. These are encoded as one mip rule:</p>
+<p>With categorical variables it is also possible to specify
+<code>if-then</code> rules. These are encoded as one mip rule:</p>
 <div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>rules <span class="ot">&lt;-</span> <span class="fu">validator</span>( <span class="at">r1 =</span> <span class="cf">if</span> (voted <span class="sc">==</span> <span class="cn">TRUE</span>) adult <span class="sc">==</span> <span class="cn">TRUE</span>)</span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">voted =</span> <span class="cn">TRUE</span>, <span class="at">adult =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
 <table>
@@ -451,7 +713,9 @@ f(\mathbf{x}) = \sum_{i=1}^N w_i \delta_i
 </tbody>
 </table>
 <div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>mip <span class="ot">&lt;-</span> <span class="fu">inspect_mip</span>(data, rules)</span></code></pre></div>
-<p><code>errorlocate</code> encodes this rule into multiple rules (as noted in the theoretical section above), so rule <code>r1</code> is chopped into 1 rule + 2 sub rules:</p>
+<p><code>errorlocate</code> encodes this rule into multiple rules (as
+noted in the theoretical section above), so rule <code>r1</code> is
+chopped into 1 rule + 2 sub rules:</p>
 <p><code>r1: if (income &gt; 0) age &gt;= 16</code>:</p>
 <ul>
 <li><p><code>r1._lin1: if (r1._lin1 == FALSE) income &lt;= 0</code></p></li>
@@ -498,7 +762,8 @@ f(\mathbf{x}) = \sum_{i=1}^N w_i \delta_i
 </div>
 <div id="alltogether" class="section level3">
 <h3>Alltogether:</h3>
-<p>This works together with categorical, linear and conditional rules.</p>
+<p>This works together with categorical, linear and conditional
+rules.</p>
 <div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>rules <span class="ot">&lt;-</span> <span class="fu">validator</span>( <span class="at">r1 =</span> working <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;no_job&quot;</span>, <span class="st">&quot;job&quot;</span>,<span class="st">&quot;retired&quot;</span>)</span>
 <span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>                  , <span class="at">r2 =</span> <span class="cf">if</span> (age <span class="sc">&lt;</span> <span class="dv">12</span>) working <span class="sc">==</span> <span class="st">&quot;no_job&quot;</span></span>
 <span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>                  , <span class="at">r3 =</span> <span class="cf">if</span> (working <span class="sc">==</span> <span class="st">&quot;retired&quot;</span>) age <span class="sc">&gt;</span> <span class="dv">50</span></span>
@@ -513,7 +778,10 @@ f(\mathbf{x}) = \sum_{i=1}^N w_i \delta_i
 </div>
 <div id="weights" class="section level3">
 <h3>Weights</h3>
-<p>The weights for each variable are normally set to 1, and <code>errorlocate</code> adds some random remainder to the weights: so the solutions are unique and reproducible (using <code>set.seed</code>).</p>
+<p>The weights for each variable are normally set to 1, and
+<code>errorlocate</code> adds some random remainder to the weights: so
+the solutions are unique and reproducible (using
+<code>set.seed</code>).</p>
 <div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
 <span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>rules <span class="ot">&lt;-</span> <span class="fu">validator</span>( <span class="at">r1 =</span> <span class="cf">if</span> (voted <span class="sc">==</span> <span class="cn">TRUE</span>) adult <span class="sc">==</span> <span class="cn">TRUE</span>)</span>
 <span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">voted =</span> <span class="cn">TRUE</span>, <span class="at">adult =</span> <span class="cn">FALSE</span>)</span>
@@ -522,7 +790,8 @@ f(\mathbf{x}) = \sum_{i=1}^N w_i \delta_i
 <div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>mip<span class="sc">$</span>objective</span>
 <span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; .delta_voted .delta_adult </span></span>
 <span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     3.457403     1.468538</span></span></code></pre></div>
-<p>These are assigned to the <code>delta</code> variables in the objective function of the mip.</p>
+<p>These are assigned to the <code>delta</code> variables in the
+objective function of the mip.</p>
 <div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>mip<span class="sc">$</span><span class="fu">to_lp</span>()</span></code></pre></div>
 <pre><code>  Model name: errorlocate
                      adult           voted    .delta_adult    .delta_voted       

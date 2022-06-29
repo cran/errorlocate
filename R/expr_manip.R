@@ -1,5 +1,5 @@
 negate_ <- function(e, ...){
-  op <- node(e)
+  op <- op_to_s(e)
 
   # don't do double negation: that complicates analysis of expressions
   if (op == '!'){
@@ -15,8 +15,13 @@ negate_ <- function(e, ...){
       } else {
         substitute( l != r, list(l = left(e), r = right(e)))
       }
-    }
-    else {
+    } else if (op %in% c("||", "|")){
+      substitute( (nl & nr), list( nl = invert_or_negate(e[[2]])
+                                 , nr = invert_or_negate(e[[3]])
+                                 )
+                )
+
+    } else {
       substitute( !(e), list(e=e) )
     }
   } else {
@@ -79,5 +84,29 @@ rewrite_ratio <- function(e){
               )
   } else {
     e
+  }
+}
+
+is_num_range <- function(e){
+  op <- as.character(node(e))
+  if (!(op %in% c("in_range", "validate::in_range"))){
+    return(FALSE)
+  }
+  if (is_lin_(e[[3]], top=FALSE) && is_lin_(e[[4]], top=FALSE)){
+    return(TRUE)
+  }
+  FALSE
+}
+
+rewrite_in_range <- function(e){
+  if (is_num_range(e)){
+    substitute((.var >= .min) & (.var <= .max)
+              , list( .var = e[[2]]
+                    , .min = e[[3]]
+                    , .max = e[[4]]
+                    )
+              )
+  } else {
+   e
   }
 }

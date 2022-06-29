@@ -264,6 +264,29 @@ describe("locate_errors", {
                   , c(y=FALSE, yA=FALSE, yB=FALSE, yC=FALSE, yD=TRUE, yE=TRUE)
     )
   })
+
+  it("accepts a in_range function", {
+    rules <- validator(in_range(age, 18, 67))
+    d <- data.frame(age = c(0, 100, 50))
+    le <- locate_errors(d, rules)
+    expect_equal(le$errors[, 1], c(TRUE, TRUE, FALSE))
+  })
+
+  it("deals with large values and NA (issue #33)", {
+    data <- iris[1,]
+    data$Petal.Width <- NA_real_
+    data$Petal.Length <- 1e7 + 1
+
+    rules <- validator(Petal.Width > 0, Petal.Length > 0)
+    expect_warning({
+      le <- locate_errors(data, rules)
+    })
+    expect_equal(le$errors[1,], c( Sepal.Length = FALSE
+                                 , Sepal.Width = FALSE
+                                 , Petal.Length = NA
+                                 , Petal.Width = NA
+                                 , Species = FALSE
+                                 )
+    )
+  })
 })
-
-
