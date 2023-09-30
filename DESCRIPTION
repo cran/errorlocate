@@ -1,7 +1,7 @@
 Package: errorlocate
 Type: Package
 Title: Locate Errors with Validation Rules
-Version: 1.1
+Version: 1.1.1
 Authors@R: c(person("Edwin", "de Jonge", email = "edwindjonge@gmail.com", role = c("aut", "cre"), comment=c(ORCID="0000-0002-6580-4718")),
              person("Mark", "van der Loo", email = "mark.vanderloo@gmail.com", role = c("aut")))
 Description: Errors in data can be located and removed using validation rules from package 
@@ -13,7 +13,7 @@ BugReports: https://github.com/data-cleaning/errorlocate/issues
 Depends: validate
 Imports: lpSolveAPI, methods, parallel
 Suggests: testthat (>= 2.1.0), covr, knitr, rmarkdown
-RoxygenNote: 7.2.0
+RoxygenNote: 7.2.3
 Encoding: UTF-8
 Collate: 'MipRules.R' 'addnoise.R' 'categorical.R' 'conditional.R'
         'dnf.R' 'errorlocalizer.R' 'errorlocate-package.r'
@@ -23,9 +23,9 @@ Collate: 'MipRules.R' 'addnoise.R' 'categorical.R' 'conditional.R'
         'utils.R' 'values.R'
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2022-06-29 09:17:41 UTC; edwindj
+Packaged: 2023-09-30 20:16:40 UTC; edwindj
 Author: Edwin de Jonge [aut, cre] (<https://orcid.org/0000-0002-6580-4718>),
   Mark van der Loo [aut]
 Maintainer: Edwin de Jonge <edwindjonge@gmail.com>
 Repository: CRAN
-Date/Publication: 2022-06-29 11:20:04 UTC
+Date/Publication: 2023-09-30 20:30:08 UTC
